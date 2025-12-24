@@ -1,6 +1,39 @@
 # IAM Lab #01 — Identity-based policy (Group) + S3 access from a .NET Web API
 
-This lab proves (with real errors + real API calls) how an **identity-based IAM policy** controls what your app can do in S3.
+## 1) Identity-based policies
+They are attached to attached to *who* (user/group/role). The user/role/group can perform actions on *any* resource in the account (unless restricted by other policies).
+- Examples: User policy, Role policy, Group policy
+#### where is it attached 
+- **IAM User** (directly)
+- **IAM Group** (users inherit)
+- **IAM Role** (apps assume roles, e.g., ECS/Lambda/EC2)
+
+#### Example A: Attached to a **Group**
+Attach this to group `iam-lab-s3-public-only`:
+
+```json
+{
+  "Effect": "Allow",
+  "Action": "s3:GetObject",
+  "Resource": "arn:aws:s3:::iam-lab-s3-anish/public/*"
+}
+```
+#### Example B: Attached to a **Role**
+Attach this to role  ` MyApiRole:`
+```json
+{
+  "Effect": "Allow",
+  "Action": ["s3:GetObject", "s3:ListBucket"],
+  "Resource": [
+    "arn:aws:s3:::iam-lab-s3-anish",
+    "arn:aws:s3:::iam-lab-s3-anish/*"
+  ]
+}
+
+```
+Any compute running as that role can read objects.
+
+This example shows how an **identity-based IAM policy** controls what your app can do in S3.
 
 ### what was  created:
 - An S3 bucket with `public/` and `private/` objects
