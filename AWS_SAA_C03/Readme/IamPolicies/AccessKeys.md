@@ -53,3 +53,5 @@ aws configure list-profiles
 ```
 
 > If the keys are compromised we can deactivate and then delete them. We can also activate it back from the aws console.
+
+> We can generate a credential reports to get details about the users, credentails , policies and more for auditing purposes
