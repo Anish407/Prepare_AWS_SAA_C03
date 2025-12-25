@@ -1,4 +1,4 @@
-# IAM Lab #01 — Identity-based policy (Group) + S3 access from a .NET Web API
+# IAM Lab #01 â€” Identity-based policy (Group) + S3 access from a .NET Web API
 
 ## 1) Identity-based policies
 They are attached to attached to *who* (user/group/role). The user/role/group can perform actions on *any* resource in the account (unless restricted by other policies).
@@ -111,8 +111,12 @@ The profile name is optional if you are using the default profile. Aws finds out
 
 5. Test the .NET Web API endpoint:
    - Accessing the endpoint to read a `public/` object should succeed and return the object content.
+    ![WhatsApp Image 2025-12-24 at 4 25 49 PM](https://github.com/user-attachments/assets/b8305d40-0589-4735-9080-1857be7cba82)
+ 
    - Accessing the endpoint to read a `private/` object should fail with an access denied error. We get the following error
    User: arn:aws:iam::[AccountNumber]:user/iam-lab-user is not authorized to perform: s3:GetObject on resource: \"arn:aws:s3:::[BucketName]/private/secret.txt\" because no identity-based policy allows the s3:GetObject action
+![WhatsApp Image 2025-12-24 at 4 25 49 PM](https://github.com/user-attachments/assets/82279dc4-0582-48b0-819d-ae4b8ce7e77c)
+
 
   6. now to grant the user access to the private prefix, we need to update the group policy to include the following statement
   
@@ -124,6 +128,10 @@ The profile name is optional if you are using the default profile. Aws finds out
       "Resource": "arn:aws:s3:::iam-lab-s3-anish-3498/private/*"
     }
     ```
+   ![WhatsApp Image 2025-12-24 at 4 53 31 PM](https://github.com/user-attachments/assets/95c2d9b3-0992-430d-adbd-b21b877adc61)
+ 
 7. After updating the policy, we can test the .NET Web API endpoint again to read a `private/` object. This time it should succeed and return the object content.
+   ![WhatsApp Image 2025-12-24 at 4 54 50 PM](https://github.com/user-attachments/assets/520e8a56-d18c-4169-89fd-fef8c8a6d46f)
+
 
 
