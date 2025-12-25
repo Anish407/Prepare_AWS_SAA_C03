@@ -50,7 +50,7 @@ The s3 bucket policy is as follows:
             "Sid": "AllowListOnlyPublicAndReportsPublicPrefix",
             "Effect": "Allow",
             "Principal": {
-                "AWS": "AIDAQ3EGUETK3STVILZ5Q"
+                "AWS": "arn:aws:iam::ACCOUNT_ID:user/rbp-test-user"
             },
             "Action": "s3:ListBucket",
             "Resource": "arn:aws:s3:::rbp-challenge",
@@ -69,7 +69,7 @@ The s3 bucket policy is as follows:
             "Sid": "AllowGetObjectPublicAndReportsPublic",
             "Effect": "Allow",
             "Principal": {
-                "AWS": "AIDAQ3EGUETK3STVILZ5Q"
+                "AWS": "arn:aws:iam::ACCOUNT_ID:user/rbp-test-user"
             },
             "Action": "s3:GetObject",
             "Resource": [
@@ -81,7 +81,7 @@ The s3 bucket policy is as follows:
             "Sid": "AllowGetObjectPublicAndReportsPublicAndConfidential",
             "Effect": "Allow",
             "Principal": {
-                "AWS": "AIDAQ3EGUETKXO754UJQK"
+                "AWS": "arn:aws:iam::ACCOUNT_ID:user/rbp-test-user"
             },
             "Action": "s3:GetObject",
             "Resource": [
