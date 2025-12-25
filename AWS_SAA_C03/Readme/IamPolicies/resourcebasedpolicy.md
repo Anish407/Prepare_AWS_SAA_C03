@@ -17,7 +17,7 @@ A resource-based policy is a type of IAM policy that you can attach to an AWS re
 
 A resource-based policy is a JSON policy attached to the AWS resource itself (bucket, queue, key, function, etc.). It answers:
 
-> ìWho is allowed to access this resource, and under what conditions?î
+> ‚ÄúWho is allowed to access this resource, and under what conditions?‚Äù
 
 Key differences vs identity-based policies:
 - Identity-based policy (on user/role/group): what this identity can do.
@@ -27,8 +27,10 @@ Key differences vs identity-based policies:
    #### Example 
 1. In this example, we create an s3 bucket and add the following folders
 
-image1
-image2
+![WhatsApp Image 2025-12-25 at 11 21 13 AM](https://github.com/user-attachments/assets/cc03e2dc-6389-43e8-9ffb-c4f2330f6bcf)
+![WhatsApp Image 2025-12-25 at 11 21 23 AM](https://github.com/user-attachments/assets/fcaf1640-a3b5-41ee-b5ab-be36d8d39490)
+
+add a few files in each folder. 
 
 2. Then we create 2 users
   - fake_user
@@ -104,9 +106,11 @@ The s3 bucket policy is as follows:
   ```bash
   aws s3 --profile fake_user1 cp s3://rbp-challenge/reports/public/confidential.txt .
   ```
+![WhatsApp Image 2025-12-25 at 11 39 15 AM](https://github.com/user-attachments/assets/fab16dbb-f11e-418c-9dd0-93e4e44fc8c8)
 
   - Now login as fake_user2 and try to read the files in the public, reports/public and reports/confidential folders. You should have access to all the files. use the following command:
 ```bash
  aws s3 --profile fake_user1 cp s3://rbp-challenge/reports/public/confidential.txt .
 ```
-image
+<img width="838" height="139" alt="image" src="https://github.com/user-attachments/assets/2b9dadbb-dad9-44fa-bc34-cf318e1e9f2e" />
+
