@@ -14,6 +14,7 @@ This document explains the main IAM “policy types” you’ll encounter in AWS
 - [3) Inline Policies](./inline_policies.md)
 - [3) Access keys](./AccessKeys.md)
 - [4) Trust policies  (role assume role policy)](../IAMRoles/TrustPolicy.md)
+- [4) EC2 Instance Profiles  TODO](../IAMRoles/TrustPolicy.md)
 
 ---
 
