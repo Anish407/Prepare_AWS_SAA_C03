@@ -1,6 +1,6 @@
 # EC2 Instance profiles
 It is a way to attach an IAM role to an EC2 instance, allowing applications running on that instance to securely access AWS services without needing to manage long-term credentials.
-It lets an EC2 Instance Profile is the thing that lets an EC2 instance �be� an IAM role without you stuffing access keys onto the box.
+It lets an EC2 Instance Profile is the thing that lets an EC2 instance “be” an IAM role without you stuffing access keys onto the box.
 
 When you attach an instance profile, EC2 automatically makes temporary credentials available to software on the instance via the Instance Metadata Service (IMDS).
 ## Key Concepts
@@ -18,9 +18,11 @@ When you attach an instance profile, EC2 automatically makes temporary credentia
   - s3://<your-bucket>/private/secret.txt
 
 2. Create an IAM role with the following permissions:
-image
+<img width="1600" height="982" alt="image" src="https://github.com/user-attachments/assets/e636f234-f271-45a4-bca2-2c39e4307287" />
+
   - Add permissions AmazonSSMInstanceManagedInstanceCore. This is required to connect to the instance using SSM.
-  image
+<img width="1600" height="1039" alt="image" src="https://github.com/user-attachments/assets/dbf540f2-8e40-492b-9765-920a20be0aa7" />
+
 3. Add a custom policy that allows read access to the public prefix of the S3 bucket:
   - Create a policy with the following JSON, replacing <your-bucket> with your actual bucket name:
 ```json
@@ -35,17 +37,39 @@ image
     ]
 }
 ```
-image 
-image
+<img width="1239" height="459" alt="image" src="https://github.com/user-attachments/assets/a8e9797a-9129-4619-b73e-dba04f032215" />
+
+<img width="1600" height="805" alt="image" src="https://github.com/user-attachments/assets/4dcaa644-9cb6-4343-8d4a-64e162ff6594" />
+
 
 4. Attach the IAM role to an EC2 instance:
   - Launch a new EC2 instance or use an existing one.
   - Attach the IAM role created in step 2 to the EC2 instance. by selecting the instance profile created along with the role.
-  image
+  <img width="1600" height="1038" alt="image" src="https://github.com/user-attachments/assets/e22466b5-ec3a-465b-b99c-8b0708a0ae07" />
+
   - Launch the instance.
 5. Connect to the EC2 instance using AWS Systems Manager Session Manager:
 cd to the user home directory and try to run the aws cli command to download the public file.
 ```bash
 aws s3 cp s3://<your-bucket>/public/hello.txt .
 ```
-image  
+At first the uploading failed because i added the wrong permission s3:getobjectacl instead of s3:getobject. But then i replaced it with the correct permission to make it work
+
+<img width="1270" height="793" alt="image" src="https://github.com/user-attachments/assets/f16230d5-3bb7-4ed5-b0ba-836411485d82" />
+
+<img width="1191" height="342" alt="image" src="https://github.com/user-attachments/assets/8998a8d1-50f0-45a2-ad6b-38df35708037" />
+
+
+## Key points
+
+- Trust policy answers only one question. “Who is allowed to assume this role?”. It’s an authentication / assume-step gate, not an authorization list for S3.
+- Even if you try to shove S3 actions into a trust policy:
+  - S3 will ignore it, because S3 never evaluates a role’s trust policy when authorizing s3:GetObject.
+  - Trust policies don’t even use the same evaluation context as identity permissions. They’re evaluated by STS during AssumeRole, not by S3 during GetObject.
+  - Bucket is in the same AWS account, so we dont need separate s3 resource policies. The permission added to the trust role is enough.
+  - Permission policies (identity-based) attached to the role
+    - Purpose: WHAT the role can do after assumed
+    - Evaluated by: the target service (S3, DynamoDB, etc.). This is where s3:GetObject, s3:ListBucket, etc. go.
+
+
+
