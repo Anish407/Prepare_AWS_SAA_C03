@@ -70,6 +70,38 @@ At first the uploading failed because i added the wrong permission s3:getobjecta
   - Permission policies (identity-based) attached to the role
     - Purpose: WHAT the role can do after assumed
     - Evaluated by: the target service (S3, DynamoDB, etc.). This is where s3:GetObject, s3:ListBucket, etc. go.
+   
+# EC2 Login vs S3 Permissions (SSM/SSH)
+
+When you “log in” to an EC2 instance (via **SSM** or **SSH**), your **IAM user permissions are irrelevant for S3 calls made from inside that instance**.
+
+## What actually happens
+
+- The EC2 instance has an **instance profile role** attached.
+- The AWS CLI/SDK on the instance automatically fetches **temporary STS credentials** for that role (via **IMDS**).
+- So when you run `aws s3 cp ...` on the instance, the request is signed as:
+
+  `assumed-role/<EC2RoleName>/...`
+
+- S3 then checks:
+  - the **role’s permission policies** (identity-based policies attached to the role)
+  - and the **bucket policy** (if present)
+  
+  to decide whether `s3:GetObject` is allowed.
+
+## What your IAM user actually controls
+
+Your IAM user only controls whether you can:
+- start an **SSM session** (`ssm:StartSession`)
+- SSH into the instance (if SSH is enabled)
+
+Once you have shell access, the **instance’s role** is the AWS identity used by default for AWS API calls from that box.
+
+## Quick proof (run inside the instance)
+
+```bash
+aws sts get-caller-identity
+```
 
 
 
