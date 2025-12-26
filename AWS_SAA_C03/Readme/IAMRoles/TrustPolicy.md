@@ -105,7 +105,14 @@ aws sts assume-role --role-arn arn:aws:iam::[Accountnumber]:role/s3_access_trust
 5.  Now inorder to run the s3 command we need to export the temporary credentials as env variables
  we can open the file that contains the aws credentails and create a new profile for the assumed role
 	<img width="1264" height="373" alt="image" src="https://github.com/user-attachments/assets/427c0e5a-53be-4162-8f36-6e70a23cd1b1" />
-
+	```
+	[assumed_trustpolicy]
+	ignore_configured_endpoint_urls=false
+	region=us-east-1
+	role_arn=arn:aws:iam::{Accountnumber}:role/s3_access_trust_policy
+	source_profile=fake_user1
+	toolkit_artifact_guid=131cd5e7-dff9-4eff-bbb5-88439b399313
+	```
 6. Now run the s3 command using the new profile
 ```
 aws s3 ls --profile assumed_trustpolicy
