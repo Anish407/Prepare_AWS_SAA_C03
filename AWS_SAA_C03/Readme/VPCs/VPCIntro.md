@@ -1,6 +1,6 @@
-# AWS VPC Basics ñ What You *Must* Know 
+# AWS VPC Basics ‚Äì What You *Must* Know 
 
-This document covers the **core VPC fundamentals** youíre expected to know for:
+This document covers the **core VPC fundamentals** you‚Äôre expected to know for:
 - AWS certifications (SAA)
 
 ---
@@ -10,7 +10,7 @@ This document covers the **core VPC fundamentals** youíre expected to know for:
 A **VPC (Virtual Private Cloud)** is a **logically isolated private network** inside AWS where you run your resources (EC2, ECS, RDS, etc.).
 
 Think of it as:
-> ìYour own data center network, but managed by AWS.î
+> ‚ÄúYour own data center network, but managed by AWS.‚Äù
 
 ---
 
@@ -20,9 +20,9 @@ A VPC **must** use one of the private IPv4 ranges below:
 
 | Range | CIDR | Size | Common Usage |
 |-----|------|------|-------------|
-| `10.0.0.0 ñ 10.255.255.255` | `/8` | ~16M IPs | **Preferred for AWS** |
-| `172.16.0.0 ñ 172.31.255.255` | `/12` | ~1M IPs | Legacy AWS default |
-| `192.168.0.0 ñ 192.168.255.255` | `/16` | 65K IPs | Home / labs (avoid in AWS) |
+| `10.0.0.0 ‚Äì 10.255.255.255` | `/8` | ~16M IPs | **Preferred for AWS** |
+| `172.16.0.0 ‚Äì 172.31.255.255` | `/12` | ~1M IPs | Legacy AWS default |
+| `192.168.0.0 ‚Äì 192.168.255.255` | `/16` | 65K IPs | Home / labs (avoid in AWS) |
 
 ---
 
@@ -49,8 +49,13 @@ image
     - An internet gateway attached
     - Default security group allowing all inbound traffic from within the VPC
     - Default NACL allowing all inbound and outbound traffic
+      <img width="1905" height="655" alt="image" src="https://github.com/user-attachments/assets/ef692b5c-a02a-486d-ad18-67a3cf44a3b9" />
+
     - Default route table with a route to the internet gateway
+      <img width="1631" height="278" alt="image" src="https://github.com/user-attachments/assets/fa59939f-fbf3-4434-bc01-28d1d7ffa5c9" />
+
     - You can use the default VPC or create your own custom VPCs
+<img width="808" height="467" alt="image" src="https://github.com/user-attachments/assets/b9a41fb9-22d6-4ae5-966c-234ee5bd6284" />
 
 
    # Contents
