@@ -66,7 +66,9 @@ Route tables decide where traffic goes when it leaves the subnet.
 ### 9. connect using Session manager and ping google.com
 - Use Session Manager to connect to the instance.
 <img width="842" height="377" alt="ec2_connect_ssm" src="https://github.com/user-attachments/assets/7994c33d-7059-4178-b3ab-1e90a49cbe4d" />
+
 - ping google.com and check if the instance can connect to the internet
+  
 <img width="600" height="300" alt="ping google" src="https://github.com/user-attachments/assets/14f30cea-df1b-441a-8dbd-fd1b5acea22c" />
 
 ### How SSM works internally
