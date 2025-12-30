@@ -11,4 +11,11 @@
 
 ## High level
 - the instances in a public subnet can use the internet gateway
+- the instances in a private subnet cannot use the internet gateway
+- the instances in a public subnet must have a public IP address to use the internet gateway
+- the instances in a private subnet can use a NAT gateway or NAT instance to access the internet
+
+# Lab
+ - [ Public Subnet, IGW, Route Tables, and SSM: Proving Internet Access the Right Way](./publicvpc.md)
+
 

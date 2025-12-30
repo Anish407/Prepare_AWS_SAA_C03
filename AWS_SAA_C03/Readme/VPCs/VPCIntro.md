@@ -159,4 +159,4 @@ If you put everything in one AZ, you don’t have HA, no matter what your load b
    - Don’t. Just don’t. Even if it’s “locked by SG”, you’re increasing blast radius for no gain.
 
 # Contents
-- [Internet Gateways](./InternetGateway.md)
+- [Internet Gateways](./InternetGateways/InternetGateway.md)
