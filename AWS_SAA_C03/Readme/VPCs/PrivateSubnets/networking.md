@@ -173,4 +173,9 @@ Understand how:
 
 8. Add the ICMP rule back to the private instance's security group and try pinging again from public to private. It should succeed now.
 
+## Key Takeaways
+
+- Route tables control where traffic goes
+- Security Groups control whether traffic is allowed
+
 
