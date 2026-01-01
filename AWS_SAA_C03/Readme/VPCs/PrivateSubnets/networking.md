@@ -1,7 +1,10 @@
 ﻿# VPC Networking Lab – Public & Private Subnets, IGW, NAT, SG vs ICMP
 
-## Goal
+## Diagram
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/7cd8e39c-eed4-4780-9a76-9bafe009cd8c" />
 
+--- 
+## Goal
 Understand how:
 - Public and private subnets work inside a VPC
 - Internet Gateway (IGW) and NAT Gateway enable outbound internet access
