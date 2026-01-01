@@ -160,3 +160,4 @@ If you put everything in one AZ, you don’t have HA, no matter what your load b
 
 # Contents
 - [Internet Gateways](./InternetGateways/InternetGateway.md)
+- [Networking](./PrivateSubnets/networking.md)
