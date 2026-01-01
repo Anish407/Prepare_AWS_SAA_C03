@@ -38,6 +38,10 @@ Understand how:
 ### Create a role that allows us to connect to the instances using SSM
 1. Go to IAM console
 2. Create a new role and select AWS service EC2
+<img width="789" height="546" alt="create_role1" src="https://github.com/user-attachments/assets/5d1e184c-c596-436e-9543-a4d608e2393a" />
+
 3. Attach the AmazonSSMManagedInstanceCore policy, give it a name and save it.
+   <img width="829" height="587" alt="create_role_ssm" src="https://github.com/user-attachments/assets/a8ce9302-64e1-4f75-b4d2-4b74ae24f9c7" />
+
 ---
-### 
+### Create the VPC
