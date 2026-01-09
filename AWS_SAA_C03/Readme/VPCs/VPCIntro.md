@@ -3,6 +3,11 @@
 This document covers the **core VPC fundamentals** you’re expected to know for:
 - AWS certifications (SAA)
 
+# Contents
+- [Internet Gateways](./InternetGateways/InternetGateway.md)
+- [Networking](./PrivateSubnets/networking.md)
+- [VPC Endpoints](./VPCEndpoints/vpcendpoints.md)
+
 ---
 
 ## What is a VPC?
@@ -158,6 +163,4 @@ If you put everything in one AZ, you don’t have HA, no matter what your load b
  - RDS in public subnets
    - Don’t. Just don’t. Even if it’s “locked by SG”, you’re increasing blast radius for no gain.
 
-# Contents
-- [Internet Gateways](./InternetGateways/InternetGateway.md)
-- [Networking](./PrivateSubnets/networking.md)
+
