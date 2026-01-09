@@ -20,6 +20,7 @@
   <ItemGroup>
     <Folder Include="Readme\IamPolicies\" />
     <Folder Include="Readme\IAMRoles\" />
+    <Folder Include="Readme\VPCs\VPCEndpoints\" />
     <Folder Include="Readme\VPCs\PrivateSubnets\" />
   </ItemGroup>
 
