@@ -90,11 +90,14 @@ Outbound rules:
 Inbound rules:
 - SSH (TCP 22) from **Bastion Security Group**
   - Source is the SG itself (SG-to-SG), NOT a CIDR
+<img width="1051" height="682" alt="16 ec2-networksettings" src="https://github.com/user-attachments/assets/4bf7a86d-93cb-477b-87bf-f4da86270112" />
+<img width="1826" height="219" alt="17 ec2-sg-networksettings" src="https://github.com/user-attachments/assets/8c27da44-1b0a-4ca8-b509-4bf299ca1e65" />
 
-Outbound rules:
-- Allow all (default)
 
 > Security groups are stateful: you do NOT need to open ephemeral ports in SGs.
+
+### Private EC2 Security group
+  <img width="1793" height="496" alt="23 private-ec2-sg" src="https://github.com/user-attachments/assets/e076d04c-d801-4e3d-bdcd-dfa708fd9daf" />
 
 ---
 
@@ -129,6 +132,8 @@ Record:
 - Public IPv4: Disabled
 - Security Group: Private SG
 - Key Pair: SAME keypair (`my-keypair`) for simplicity in this lab
+  <img width="1818" height="822" alt="21 create-private-ec2" src="https://github.com/user-attachments/assets/26059b5d-8088-445f-8e63-da314a64f24b" />
+  <img width="1686" height="783" alt="22 create-private-ec2" src="https://github.com/user-attachments/assets/d68539e9-fde4-4efa-9770-f78eb590c347" />
 
 Record:
 - Private EC2 private IP (example `10.0.2.42`)
@@ -136,6 +141,7 @@ Record:
 ---
 
 # Phase 4 — Laptop → Bastion SSH
+- <img width="745" height="516" alt="18 open_ssh" src="https://github.com/user-attachments/assets/f15646c1-a60b-4e45-a593-50309e81d999" />
 
 ## Step 1: Put the key on your Linux/WSL filesystem
 If your key is on Windows (e.g., `D:\...`), copy it to your Linux home:
@@ -145,10 +151,14 @@ mkdir -p ~/.ssh
 cp "/mnt/d/Projects/AWS SSA C03/Files/Images/EC2s/my-keypair.pem" ~/.ssh/
 chmod 400 ~/.ssh/my-keypair.pem
 ```
+ <img width="1073" height="137" alt="19 ec2-ssh-1" src="https://github.com/user-attachments/assets/57006ede-df33-41fb-95fc-cda1f227d22b" />
+
 ## Step 2: SSH into the bastion
 ```
 ssh -i ~/.ssh/my-keypair.pem ec2-user@<BASTION_PUBLIC_IP>
 ```
+<img width="1067" height="490" alt="20 ec2_ssh2" src="https://github.com/user-attachments/assets/9b2cf66e-650b-4c93-b698-b2487bcf6058" />
+
 Expected: you land on the bastion and see the Amazon Linux banner.
 
 ## Phase 5 — Bastion → Private SSH (and the expected failure)
@@ -201,6 +211,9 @@ On my laptop:
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/my-keypair.pem
 ```
+  <img width="1793" height="496" alt="23 private-ec2-sg" src="https://github.com/user-attachments/assets/9c8d854e-a5f0-42e9-856e-4148173b91bc" />
+
+
 Then reconnect:
 ```
 ssh -A ec2-user@PUBLIC_IP
@@ -213,10 +226,17 @@ ssh-add -l
 ```
 Now the agent socket existed, and the key was visible.
 
+ <img width="1366" height="595" alt="image" src="https://github.com/user-attachments/assets/874d0657-24a6-4451-b307-5872835f7d4e" />
+
+
+
 Finally:
 ```
 ssh ec2-user@10.0.2.42
 ```
+ <img width="1200" height="402" alt="image" src="https://github.com/user-attachments/assets/8fecb05d-9de1-4094-9cbe-1f73ce9f902d" />
+
+
 
 
 
