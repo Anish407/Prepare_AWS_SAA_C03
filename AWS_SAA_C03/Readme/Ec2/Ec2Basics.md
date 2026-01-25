@@ -4,6 +4,7 @@ Amazon Elastic Compute Cloud (Amazon EC2) is a web service that provides resizab
 # Labs
 - [Connect to private ec2 using ssh from a public ec2](./ec2ssh.md)
 - [Connect to private ec2 using SSM , IGW and NAT](./ec2-ssm-nat.md)
+- [Elastic Ips](./ElasticIps.md)
 
 ## Key Concepts
 - **Instances**: Virtual servers that run applications on the AWS infrastructure. You can choose from a variety of instance types based on your needs for CPU, memory, storage, and networking capacity.
