@@ -5,6 +5,9 @@ A role is an AWS identity with permissions that is meant to be assumed (temporar
 - Roles are how AWS services (ECS/Lambda/EC2) get permissions without baking secrets into code.Used by applications, services, or users needing temporary access.
 - Cross-account access: Account A assumes role in Account B.
 
+> A trust policy always lives on the role being assumed.
+> Never on the caller.
+
 ### Roles have two main policies:
    1) **Permission policy (WHAT you can do after assuming)**:  ex: what can I do once I am me?
      - Attached to the role (inline or managed).
