@@ -8,6 +8,7 @@ Amazon Elastic Compute Cloud (Amazon EC2) is a web service that provides resizab
 - [EC2 Placement groups](./placementgroups.md)
 - [AWS Outpost](./outposts.md)
 - [Reserved Instances](./reservedinstances.md)
+- [EC2 savings plan](./SavingsPlan.md)
 
 ## Key Concepts
 - **Instances**: Virtual servers that run applications on the AWS infrastructure. You can choose from a variety of instance types based on your needs for CPU, memory, storage, and networking capacity.
