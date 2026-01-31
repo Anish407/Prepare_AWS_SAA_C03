@@ -6,6 +6,10 @@ It allows you to store and retrieve any amount of data from anywhere in the worl
 
 ---
 
+- [Storage classes](./storageclasses.md)
+
+---
+
 ## What Amazon S3 Is
 
 Amazon S3 is an object storage service.  
