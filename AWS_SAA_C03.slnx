@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="AWS_SAA_C03/AWS_SAA_C03.csproj" />
+  <Project Path="s3replication/s3replication.csproj" Id="5e8ecb0d-0deb-47bd-ac07-49089be7f462" />
 </Solution>
