@@ -1,4 +1,4 @@
-## Amazon S3 Replication – Features & Important Facts
+## Amazon S3 Replication â€“ Features & Important Facts
 
 ### What is S3 Replication?
 
@@ -59,7 +59,7 @@ This is one of the most common misunderstandings.
 
 ### ? Replication Is Not Instant
 - Replication is **eventually consistent**
-- There is no SLA for “instant” replication
+- There is no SLA for â€œinstantâ€ replication
 - Large files and high volumes increase lag
 
 Do **not** rely on replication for live sync use cases.
@@ -119,13 +119,13 @@ Replication is **not free**, even within the same region.
 
 ## Key Mental Model (Remember This)
 
-> **S3 Replication is a rule-driven, asynchronous, object-level copy mechanism — not a file sync tool.**
+> **S3 Replication is a rule-driven, asynchronous, object-level copy mechanism â€” not a file sync tool.**
 
 
 ---
 
 
-# S3 Replication with ClickOnce (WPF) – Hands-on Lab
+# S3 Replication with ClickOnce (WPF) â€“ Hands-on Lab
 
 ## Objective
 
@@ -153,34 +153,52 @@ This lab mimics a **simple multi-region / backup / distribution** setup for stat
 ## Steps Performed
 
 ### 1. Create S3 Buckets
-- Created **two S3 buckets**
+- Created **two S3 buckets (BOTH ARE PUBLIC)**
   - Source bucket
+    <img width="1785" height="792" alt="3 source_bucket" src="https://github.com/user-attachments/assets/be1874d6-d34c-4ab6-96b3-6c71e41b521b" />
+    <img width="1762" height="698" alt="4 source_bucket" src="https://github.com/user-attachments/assets/2e0abe5c-2073-41e2-bcc7-7446efc98856" />
+
   - Destination bucket
+    <img width="1752" height="735" alt="5 destination-bucket" src="https://github.com/user-attachments/assets/23d717fb-b68a-45c4-957d-61c5bb1bfea7" />
+
 - Disabled *Block Public Access*
 - Allowed public read access to ClickOnce artifacts
+  <img width="1582" height="563" alt="6 bucket-policy" src="https://github.com/user-attachments/assets/aaa5cf5e-12fc-4038-952c-6fe7fe5c68bf" />
 
 ---
 
 ### 2. Create and Publish WPF ClickOnce App
 - Created a **WPF application**
+  <img width="1431" height="893" alt="1 clickonce" src="https://github.com/user-attachments/assets/26b811c9-0d28-4e64-87a3-9001bdbcb6c0" />
+
 - Configured **ClickOnce publishing**
+  <img width="1373" height="622" alt="25 publish-changes" src="https://github.com/user-attachments/assets/384b07d7-15b5-4349-8d81-334339610f96" />
+
 - Set the **Install Location** to:
 ```
     https://<source-bucket-name>.s3.amazonaws.com/myapp/
 ```
+  <img width="1002" height="686" alt="2 5 clickonce_url" src="https://github.com/user-attachments/assets/3af18c4f-606f-4141-b7e0-2d410d1bfb77" />
 
-
-- Published the ClickOnce artifacts to the `myapp/` folder
-- Verified installation from the **source bucket**
-
+- Enable auto updates on the click once app, so that everytime the app is opened it checks for updates
+  <img width="1000" height="698" alt="2 autoupdates" src="https://github.com/user-attachments/assets/cefe6268-616b-4a32-a0bc-41d1dcced2d9" />
+- Published the ClickOnce artifacts 
+- We will copy the artifacts after we enable the replication
 ---
 
 ### 3. Configure S3 Replication
+- Create the replication rule
+  <img width="1832" height="786" alt="9 start-replication1" src="https://github.com/user-attachments/assets/d1570d5e-133e-4483-8469-428a25c85803" />
+  <img width="1510" height="783" alt="10 replication2" src="https://github.com/user-attachments/assets/12b0bdf8-94f3-4299-a0b5-ce35224a1c40" />
+
+  <img width="1855" height="502" alt="11 replication3" src="https://github.com/user-attachments/assets/b45d03ab-e1c5-419e-8dd6-3c4dd301fd44" />
+
 - Enabled **versioning** on both buckets
 - Created a **replication rule**:
-  - Source: `myapp/` prefix
+  - Source: all contents
   - Destination: second bucket
 - Used an IAM role created automatically by S3 for replication
+  <img width="1717" height="580" alt="12 replcation-dest" src="https://github.com/user-attachments/assets/dbdfab87-bc91-4298-9e26-fd23356a332d" />
 
 ---
 
