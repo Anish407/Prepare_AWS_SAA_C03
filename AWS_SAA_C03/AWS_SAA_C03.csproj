@@ -21,7 +21,6 @@
     <Folder Include="Readme\IamPolicies\" />
     <Folder Include="Readme\IAMRoles\" />
     <Folder Include="Readme\Ec2\" />
-    <Folder Include="Readme\S3\" />
     <Folder Include="Readme\VPCs\VPCEndpoints\" />
     <Folder Include="Readme\VPCs\PrivateSubnets\" />
   </ItemGroup>
