@@ -1,5 +1,3 @@
-<img width="1878" height="708" alt="1 select" src="https://github.com/user-attachments/assets/31ece692-446c-4e08-b35c-87f8108abc03" /># Amazon S3 Select – Hands-On Lab
-
 ## What is Amazon S3 Select?
 Amazon S3 Select allows you to retrieve **a subset of data** from an object stored in Amazon S3 using **SQL expressions**, without downloading the entire object.
 
