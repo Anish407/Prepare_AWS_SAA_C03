@@ -1,4 +1,4 @@
-# Amazon S3 Select – Hands-On Lab
+<img width="1878" height="708" alt="1 select" src="https://github.com/user-attachments/assets/31ece692-446c-4e08-b35c-87f8108abc03" /># Amazon S3 Select â€“ Hands-On Lab
 
 ## What is Amazon S3 Select?
 Amazon S3 Select allows you to retrieve **a subset of data** from an object stored in Amazon S3 using **SQL expressions**, without downloading the entire object.
@@ -24,7 +24,7 @@ Downloading the entire object and filtering locally is inefficient and expensive
 ---
 
 ## Dataset Used
-**File:** `events.csv`  
+**File:** [events.csv](./events.csv)
 **Location:** `s3://<bucket-name>/data/events.csv`
 
 Columns:
@@ -39,9 +39,10 @@ Columns:
 ---
 
 ## Baseline Approach (Without S3 Select)
-1. Download the full object from S3
-2. Parse the CSV locally
-3. Filter rows in application code
+1. Upload the file to s3
+2. Download the full object from S3
+3. Parse the CSV locally
+4. Filter rows in application code
 
 ### Downsides
 - Entire object transferred over the network
@@ -53,6 +54,7 @@ Columns:
 
 ## S3 Select Approach
 Instead of downloading the full object:
+- Create an s3 bucket and upload the CSV file
 - Run a SQL query directly on the S3 object
 - Stream back only the matching rows and columns
 
@@ -62,11 +64,15 @@ Instead of downloading the full object:
 
 1. Open the S3 object (`events.csv`)
 2. Choose **Query with S3 Select**
-3. Input format:
+   <img width="1878" height="708" alt="1 select" src="https://github.com/user-attachments/assets/e698d9e2-831d-414b-b944-d055b7093a4b" />
+
+4. Input format:
    - Format: **CSV**
    - **Enable:** *Exclude the first line of CSV data*  
      (Use this if the file contains a header row)
-4. Output format:
+     <img width="1362" height="787" alt="2 selectoptions" src="https://github.com/user-attachments/assets/bfd7b447-ac89-47e9-b35d-56a278e154b5" />
+
+5. Output format:
    - CSV
 
 If this header option is not enabled:
@@ -86,11 +92,13 @@ SELECT * FROM S3Object s LIMIT 5
 ```sql
 SELECT * FROM S3Object s WHERE s.user_id = '1001'
 ```
+<img width="1792" height="716" alt="4 result1" src="https://github.com/user-attachments/assets/eb6158df-4816-4db9-b083-70c41e1fdc39" />
 
 ### 3. Filter by country
 ```sql
 SELECT * FROM S3Object s WHERE s.country = 'SE'
 ```
+<img width="958" height="725" alt="5 result" src="https://github.com/user-attachments/assets/1ac5911b-1b1c-42b8-a685-2f11d4b2843a" />
 
 ### 4. Column projection (cost-efficient)
 ```sql
@@ -101,6 +109,7 @@ SELECT s.user_id, s.event_type, s.value FROM S3Object s WHERE s.country = 'SE'
 ```sql
 SELECT s.user_id, s.event_time, s.value FROM S3Object s WHERE s.event_type = 'click'   AND s.value > 0
 ```
+<img width="958" height="725" alt="5 result" src="https://github.com/user-attachments/assets/97f16d33-a85f-4583-b322-b097baa014d7" />
 
 ### 6. Purchase events only
 ```sql
@@ -111,6 +120,7 @@ SELECT s.user_id, s.country, s.value FROM S3Object s WHERE s.event_type = 'purch
 ```sql
 SELECT * FROM S3Object s WHERE s.country = 'SE'AND s.event_type = 'purchase' AND CAST(s."value" AS float) > 100
 ```
+<img width="1822" height="663" alt="6 result" src="https://github.com/user-attachments/assets/5cbefbcf-885b-4398-b3fc-7890ca47a7af" />
 
 > I struggled here since s.value always failed, it was because value is a keyword and we need to wrap in it ""
 
@@ -122,6 +132,7 @@ SELECT COUNT(*) AS total_events FROM S3Object s
 ```sql 
 SELECT SUM(CAST(s."value" as float)) AS total_revenue FROM S3Object s WHERE s.event_type = 'purchase'
 ```
+<img width="1765" height="622" alt="7" src="https://github.com/user-attachments/assets/7ce8075d-c138-4219-a61d-891903b272aa" />
 
 ---
 
