@@ -10,6 +10,7 @@ It allows you to store and retrieve any amount of data from anywhere in the worl
 - [S3 replication](./S3Replication.md)
 - [S3 lifecycle and versioning](./s3versioningandlifecycle.md)
 - [S3 select](./s3select.md)
+- [S3 bucket policies](./s3bucketpolicies.md)
 
 ---
 
