@@ -173,27 +173,29 @@ Show how public access can be revoked using bucket policies, and how access can 
   <img width="1702" height="720" alt="image" src="https://github.com/user-attachments/assets/1f6443ff-d813-4b27-9a53-11205668f461" />
 - Now we update the bucket policy to allow list permissions via the gateway endpoint, we paste the s3 gateway endpoints id in the bucket policy
   <img width="1673" height="781" alt="image" src="https://github.com/user-attachments/assets/ff3f3012-afae-4556-8e1a-fd734bb9ef94" />
-  So the policy now looks like this,
-  ```json
-  {
-            "Sid": "AllowOnlyFromVPCE",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": [
-                "s3:ListBucket",
-                "s3:GetObject"
-            ],
-            "Resource": [
-                "arn:aws:s3:::anish-bucket-policies-182736",
-                "arn:aws:s3:::anish-bucket-policies-182736/*"
-            ],
-            "Condition": {
-                "StringEquals": {
-                    "aws:sourceVpce": "vpce-099c13df0b1a03451"
-                }
-            }
-        }
-  ```
+- So the policy now looks like this.
+
+ ```json
+{
+	            "Sid": "AllowOnlyFromVPCE",
+	            "Effect": "Allow",
+	            "Principal": "*",
+	            "Action": [
+	                "s3:ListBucket",
+	                "s3:GetObject"
+	            ],
+	            "Resource": [
+	                "arn:aws:s3:::anish-bucket-policies-182736",
+	                "arn:aws:s3:::anish-bucket-policies-182736/*"
+	            ],
+	            "Condition": {
+	                "StringEquals": {
+	                    "aws:sourceVpce": "vpce-099c13df0b1a03451"
+	                }
+	            }
+	        }
+ ```
+	
 - Now we can connect to the s3 instance using the ec2, this however doesnt mean that the ec2-user has the permission to connect to the s3. Its the S3 endpoint that is granted permission to list the bucket contents. So anyone, who has the permissions to connect to the EC2 using SSM will be able to list the bucket contents
   <img width="892" height="228" alt="image" src="https://github.com/user-attachments/assets/969acfc3-0493-4546-a419-f22b3ec9abba" />
 
