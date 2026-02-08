@@ -77,6 +77,14 @@ Demonstrate that S3 bucket policies can grant access independently of IAM permis
     ]
     }
   ```
+
+>  ```
+>       "arn:aws:s3:::anish-bucket-policies-182736",
+>       "arn:aws:s3:::anish-bucket-policies-182736/*"
+>  ```
+>  We need to add 2 entries in the resource section because they serve different purposes. The first one (arn:aws:s3:::anish-bucket-policies-182736) is for the bucket  and the next one
+> (arn:aws:s3:::anish-bucket-policies-182736/*) is for the objects in that bucket
+  
 - We now try to list all the s3 buckets in the account using the 2 users
   <img width="1472" height="327" alt="image" src="https://github.com/user-attachments/assets/1289cd3d-1528-4ccd-adbe-49b00e997b9c" />
 
