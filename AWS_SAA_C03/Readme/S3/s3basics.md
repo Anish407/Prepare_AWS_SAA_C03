@@ -11,6 +11,7 @@ It allows you to store and retrieve any amount of data from anywhere in the worl
 - [S3 lifecycle and versioning](./s3versioningandlifecycle.md)
 - [S3 select](./s3select.md)
 - [S3 bucket policies](./s3bucketpolicies.md)
+- [S3 Encryption at rest](./s3encryption.md)
 
 ---
 
@@ -254,3 +255,69 @@ They use a globally shared namespace but exist as regional resources.
 
 Buckets provide high durability through multi-AZ storage, strong read after write consistency, and automatic failure recovery.
 Understanding bucket behavior is essential before working with S3 objects and permissions.
+
+## Cross Account Replication and Encryption
+
+This section explains how encryption works when S3 objects are replicated between AWS accounts.
+
+### Scenario
+
+- Source bucket in Account A
+- Destination bucket in Account B
+- Objects encrypted using AWS managed keys (SSE S3)
+- S3 Replication enabled between the buckets
+
+### How Replication Works with AWS Managed Keys
+
+When an object encrypted with SSE S3 is replicated across accounts, the encrypted object is not copied byte for byte.
+
+Instead, the following happens:
+
+1. The object is stored encrypted in the source bucket in Account A
+2. The S3 Replication service reads the object
+3. AWS decrypts the object internally inside AWS infrastructure
+4. The object is written to the destination bucket in Account B
+5. The object is re encrypted using the destination account encryption configuration
+
+No encryption keys are shared between accounts.
+
+The destination account does not need access to the source account encryption keys.
+
+### Important Mental Model
+
+S3 replication copies data, not encryption keys.
+
+Each account encrypts objects using its own keys.
+
+### What the Destination Account Sees
+
+From the destination account perspective:
+
+- The object appears as a normal S3 object
+- It is encrypted at rest using the destination account AWS managed key
+- It can be accessed normally based on IAM permissions in the destination account
+
+There is no dependency on the source account after replication is complete.
+
+---
+
+## Contrast with SSE KMS
+
+When using SSE KMS instead of AWS managed keys, replication becomes more complex.
+
+Additional requirements include:
+
+- The source account KMS key policy must allow S3 Replication
+- The replication role must be allowed to use the source KMS key
+- A KMS key must exist in the destination account
+- The replication configuration must specify the destination KMS key
+
+If these permissions are not configured correctly, replication will fail.
+
+### Why SSE KMS Is Different
+
+With SSE KMS, encryption keys are customer controlled.
+
+AWS does not automatically assume permission to decrypt data unless explicitly allowed by key policies.
+
+---
