@@ -259,6 +259,32 @@ Understanding this separation is critical for cloud architecture design.
 -   Certificate not matching hostname
 -   Not recreating MX records when moving DNS
 
+
+------------------------------------------------------------------------
+# What Happens When You Create a CloudFront Distribution?
+
+When you create a distribution in CloudFront, AWS automatically generates:
+
+```
+d3abcxyz123.cloudfront.net
+```
+
+This is the default domain name for your distribution and we dont need to do anything else to use it because aws owns the cloudfront.net domain and has already set up the necessary DNS records for it.
+
+Because AWS already owns and controls cloudfront.net, it can:
+
+- Create new subdomains instantly
+- Configure DNS internally
+- Point that subdomain to CloudFront edge locations
+
+> - No registrar interaction is needed.
+> - No hosted zone is needed in your account.
+> - No domain purchase is required.
+
+You are simply using a subdomain of AWS’s domain.
+
+
+
 ------------------------------------------------------------------------
 
 # Conclusion
