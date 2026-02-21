@@ -1,4 +1,4 @@
 # Route53
 
 # Labs
-- [Using Private hosted zones](./privatehostedzone.md)
+- [Using Private hosted zones](./PrivateHostesZone.md)
