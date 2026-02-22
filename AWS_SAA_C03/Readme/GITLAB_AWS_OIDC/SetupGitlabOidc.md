@@ -2,6 +2,8 @@
 
 
 ## Step 1 - Create the Identity provider in aws
+- URL: https://gitlab.com
+- Audience: pick sts.amazonaws.com (recommended, and common)
 <img width="1847" height="658" alt="image" src="https://github.com/user-attachments/assets/b5e87077-adaa-46bd-bc84-fcf93081fcee" />
 
 Keep note of the ARN for the provider we just added. This will be required in the next step where we will create a trust policy
