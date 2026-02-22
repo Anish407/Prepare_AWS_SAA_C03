@@ -1,5 +1,107 @@
 # Setup the gitlab OIDC with AWS to run pipelines
 
+-----------------------------------
+
+# Registering the gitlab runner
+
+1. Get the gitlab runner from [here](https://docs.gitlab.com/runner/install/) and also install Docker desktop
+
+2. Install GitLab Runner on Windows
+
+Create a directory:
+
+``` powershell
+mkdir C:\GitLab-Runner
+cd C:\GitLab-Runner
+```
+Place `gitlab-runner.exe` inside that folder.
+
+Install and start the service:
+
+``` powershell
+.\gitlab-runner.exe install
+.\gitlab-runner.exe start
+```
+
+Verify service is running:
+
+``` powershell
+Get-Service gitlab-runner
+```
+
+3. Create a Runner in GitLab
+
+Go to:
+
+Project -> Settings -> CI/CD -> Runners -> Create Runner
+
+<img width="1475" height="585" alt="image" src="https://github.com/user-attachments/assets/ad1cf4a9-0694-437f-a669-6f13ab33dab8" />
+
+
+You will receive:
+
+-   GitLab URL
+-   Registration token
+
+<img width="1242" height="741" alt="image" src="https://github.com/user-attachments/assets/40667503-7708-4bfe-83c6-1938fdc9872b" />
+
+  
+4. # Step 4 -- Register the Runner
+
+Run:
+
+``` powershell
+.\gitlab-runner.exe register
+```
+
+Provide the following details when prompted:
+
+GitLab instance URL:
+
+    https://gitlab.com/
+
+Registration token: (Paste token from GitLab)
+
+Description:
+
+    local-docker-runner
+
+Tags:
+
+    local,docker,aws
+
+Executor:
+
+    docker
+
+Default Docker image:
+
+    amazon/aws-cli:latest
+
+
+5. Verify Runner in GitLab
+
+Go back to GitLab and confirm the runner shows as:
+
+local-docker-runner (online)
+
+6. Use the Runner in .gitlab-ci.yml
+
+Add tags to force jobs to use your runner:
+
+``` yaml
+oidc_test:
+  stage: test
+  tags:
+    - local
+  image:
+    name: amazon/aws-cli:latest
+    entrypoint: [""]
+  script:
+    - aws --version
+```
+    
+-------------------
 
 ## Step 1 - Create the Identity provider in aws
 - URL: https://gitlab.com
@@ -105,20 +207,6 @@ The flow is:
 - The job runs AWS commands using those temporary credentials
 
 
-
-
-# Registering the gitlab runner
-
-1. Get the gitlab runner from [here](https://docs.gitlab.com/runner/install/)
-
-2. Downloading the exe to a folder
-   <img width="930" height="480" alt="image" src="https://github.com/user-attachments/assets/8f90d107-226c-4c2b-b19a-d56cf17187fc" />
-3. Run the following command to register the runner
-  ```bash
-   gitlab-runner register
-  ```   
-
-   <img width="1454" height="474" alt="image" src="https://github.com/user-attachments/assets/d320506e-c490-423b-bf68-2f7c6ab0af4b" />
 
 # Create an S3 bucket and put a file in it
 <img width="1250" height="487" alt="image" src="https://github.com/user-attachments/assets/446947a6-ab3e-4191-85dc-8d588bc87199" />
