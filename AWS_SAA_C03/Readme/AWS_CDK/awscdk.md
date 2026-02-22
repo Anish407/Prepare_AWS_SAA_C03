@@ -2,6 +2,153 @@
 
 - [1. Create a PrivateEC2 and connect to it using SSM, NAT and IGW](../../../private-ec2-ssm-igw-nat-cdk/private_ec2_ssm_igw_nat_cdk/private_ec2_ssm_igw_nat_cdk_stack.py)
 
+# Setting up a CDK project
+
+# AWS CDK (Python) — Setup, venv, and Running the App
+
+This repo uses **AWS CDK with Python**. The basic workflow is:
+
+1. Create & activate a Python **virtual environment (venv)**
+2. Install dependencies (CDK libraries)
+3. Configure AWS credentials (so CDK can deploy)
+4. Bootstrap the AWS environment (one-time per account/region)
+5. Run CDK commands: synth → diff → deploy (and destroy when done)
+
+---
+
+## 1) What is `venv` and why it matters
+
+A Python **virtual environment** is an isolated folder that contains:
+- its own Python interpreter links
+- its own installed packages (`pip install ...`)
+- its own dependency versions (per project)
+
+### Why you should care (brutal truth)
+If you **don’t** use a venv, you’ll eventually:
+- pollute your global Python install with random packages
+- break other CDK projects because dependency versions conflict
+- waste time debugging “works on my machine” issues
+
+### Do I need a venv per CDK project?
+**Yes.** Each CDK repo should have its own `.venv/` so dependencies are isolated per project.
+
+## 2) Create the venv
+
+From the repo root (where `app.py` and `cdk.json` exist):
+
+```bash
+python -m venv .venv
+```
+
+### 3) Activate the venv
+```bash
+.venv\Scripts\activate
+```
+
+After activation:
+
+- your terminal prompt usually shows (.venv)
+- python --version points to the venv context
+- pip --version points inside .venv
+
+To exit the venv:
+```bash
+deactivate
+```
+
+### 4) Install CDK + project dependencies
+If you have a requirements.txt
+```
+pip install -r requirements.txt
+```
+
+Typical CDK Python dependencies include
+
+- aws-cdk-lib
+- constructs
+
+```
+aws-cdk-lib==2.*
+constructs>=10.0.0,<11.0.0
+```
+
+> Important: Install dependencies inside the venv, not globally.
+
+---
+
+### 5) Install CDK CLI (needed to run cdk ...)
+
+CDK CLI is a Node.js tool.
+
+- Install Node.js (LTS recommended)
+- Install the CDK CLI globally:
+
+```bash   
+npm install -g aws-cdk
+
+cdk --version # run this to verify installation
+```
+
+
+### 6) Configure AWS credentials
+CDK uses your AWS credentials to deploy resources.
+- You can set up credentials using `aws configure` (AWS CLI)
+- CDK will use the default profile by default, or you can specify a profile with `--profile` flag.
+- Make sure your credentials have permissions to create the resources defined in your CDK app.
+```bash
+aws configure --profile my-cdk
+aws sts get-caller-identity --profile my-cdk # verify credentials work
+```
+### 7) Bootstrap the environment (required before first deploy)
+
+Bootstrapping creates CDK’s “toolkit” resources in your account/region (like an S3 bucket for assets, roles, etc.)
+
+```bash
+cdk bootstrap --profile my-cdk
+
+OR
+
+cdk bootstrap aws://123456789012/us-east-1 # if you want to specify account and region explicitly
+```
+### 8) Run CDK commands
+Then run CDK with that profile:
+```bash
+cdk diff --profile my-cdk
+cdk deploy --profile my-cdk
+```
+
+## What Happens Behind the Scenes
+
+  Command         What It Actually Does
+  --------------- -----------------------------------------
+  `cdk list`      Executes app and prints stack names
+  `cdk synth`     Converts CDK -> CloudFormation
+  `cdk diff`      Compares deployed stack vs new template
+  `cdk deploy`    Triggers CloudFormation deployment
+  `cdk destroy`   Deletes CloudFormation stack
+
+CDK is not magic.
+
+It is a CloudFormation template generator + deployment orchestrator.
+
+------------------------------------------------------------------------
+
+## Final Workflow Summary
+
+Your real CDK execution cycle:
+
+``` bash
+cdk list
+cdk synth
+cdk diff
+cdk deploy
+```
+
+Repeat this every time you modify infrastructure code.
+
+Infrastructure is now version-controlled, repeatable, and auditable.
+
+
 # AWS CDK Constructs Deep Dive
 
 ## Overview
