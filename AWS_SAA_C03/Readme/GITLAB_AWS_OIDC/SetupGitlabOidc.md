@@ -1,3 +1,22 @@
+# Setup Gitlab OIDC to connect to AWS 
+
+## Big Picture Flow
+```code
+GitLab Job
+   |
+   | 1. GitLab generates OIDC JWT
+   v
+AWS STS (AssumeRoleWithWebIdentity)
+   |
+   | 2. STS validates token using OIDC Provider
+   v
+IAM Role (Trust Policy + Permission Policy)
+   |
+   | 3. STS issues temporary credentials
+   v
+AWS API (S3, ECS, CloudFormation, etc.)
+ ```
+
 # Setup the gitlab OIDC with AWS to run pipelines
 
 -----------------------------------
