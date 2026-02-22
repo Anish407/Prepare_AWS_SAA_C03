@@ -113,17 +113,43 @@ The flow is:
 
 2. Downloading the exe to a folder
    <img width="930" height="480" alt="image" src="https://github.com/user-attachments/assets/8f90d107-226c-4c2b-b19a-d56cf17187fc" />
-3. Run the follwoing command to register the runner
+3. Run the following command to register the runner
   ```bash
    gitlab-runner register
   ```   
 
    <img width="1454" height="474" alt="image" src="https://github.com/user-attachments/assets/d320506e-c490-423b-bf68-2f7c6ab0af4b" />
 
+# Create an S3 bucket and put a file in it
+<img width="1250" height="487" alt="image" src="https://github.com/user-attachments/assets/446947a6-ab3e-4191-85dc-8d588bc87199" />
 
+we will list the files in this bucket from gitlab using the gitlab OIDC flow
 
+# Create the gitlab Pipeline
 
+```yml
+oidc_test:
+  stage: test
+  image:
+    name: amazon/aws-cli:latest
+    entrypoint: [""]
+  id_tokens:
+    AWS_TOKEN:
+      aud: sts.amazonaws.com
+  variables:
+    AWS_DEFAULT_REGION: $AWS_REGION
+  script:
+    - echo "$AWS_TOKEN" > /tmp/web_identity_token
+    - export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/web_identity_token
+    - export AWS_ROLE_ARN=$ROLE_ARN
+    - aws sts get-caller-identity
+    - aws s3 ls s3://gitlab-oidc-demo
+```
+- Run the pipeline
+<img width="751" height="456" alt="image" src="https://github.com/user-attachments/assets/b8a71ff0-7896-4a3b-aa93-0ae8c3aa9956" />
 
+- The gitlab job now successfully connects to aws and lists the bucket contents
+<img width="1221" height="328" alt="image" src="https://github.com/user-attachments/assets/17933a6d-a1db-4cd1-8673-e66a0e302178" />
 
 
 
