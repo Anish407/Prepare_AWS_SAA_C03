@@ -16,16 +16,47 @@ IAM Role (Trust Policy + Permission Policy)
    v
 AWS API (S3, ECS, CloudFormation, etc.)
  ```
+# GitLab OIDC to AWS -- Detailed Flow Summary
 
+GitLab OIDC authentication with AWS works by allowing a GitLab CI job to
+dynamically prove its identity to AWS without using long‑lived access
+keys: when a pipeline runs and an id_token is requested in the
+.gitlab-ci.yml file with a specified audience (for example
+sts.amazonaws.com), GitLab generates a short‑lived, cryptographically
+signed JSON Web Token (JWT) that contains claims such as the issuer
+(iss), audience (aud), and subject (sub), where the subject encodes
+information like the project path, branch name, and ref type.
+
+This token is signed using GitLab's private key, and AWS is able to verify it
+because an IAM OpenID Connect (OIDC) Identity Provider has been
+configured in the AWS account to trust tokens issued by GitLab's issuer
+URL and to retrieve GitLab's public signing keys from its JWKS endpoint;
+
+when the job calls AWS STS AssumeRoleWithWebIdentity, STS validates the
+token by checking that the issuer matches the configured OIDC provider,
+the signature matches the public key, the audience matches what is
+required in the role's trust policy, and the subject claim satisfies the
+trust policy conditions that restrict access to specific projects or
+branches, and if all checks succeed STS issues temporary security
+credentials for the IAM role; from that point onward, AWS services
+evaluate requests made with those temporary credentials against the
+role's permission policy to determine what actions are allowed, meaning
+the trust policy controls who can assume the role while the permission
+policy controls what the role can do, and the Identity Provider's sole
+responsibility in this process is enabling AWS to validate the external
+JWT so that secure, secretless, short lived authentication between
+GitLab and AWS becomes possible.
+
+---------------
 # Setup the gitlab OIDC with AWS to run pipelines
 
 -----------------------------------
 
 # Registering the gitlab runner
 
-1. Get the gitlab runner from [here](https://docs.gitlab.com/runner/install/) and also install Docker desktop
+### 1. Get the gitlab runner from [here](https://docs.gitlab.com/runner/install/) and also install Docker desktop
 
-2. Install GitLab Runner on Windows
+### 2. Install GitLab Runner on Windows
 
 Create a directory:
 
@@ -48,7 +79,7 @@ Verify service is running:
 Get-Service gitlab-runner
 ```
 
-3. Create a Runner in GitLab
+### 3. Create a Runner in GitLab
 
 Go to:
 
@@ -65,7 +96,7 @@ You will receive:
 <img width="1242" height="741" alt="image" src="https://github.com/user-attachments/assets/40667503-7708-4bfe-83c6-1938fdc9872b" />
 
   
-4. # Step 4 -- Register the Runner
+### 4. Step 4 -- Register the Runner
 
 Run:
 
@@ -98,13 +129,13 @@ Default Docker image:
     amazon/aws-cli:latest
 
 
-5. Verify Runner in GitLab
+### 5. Verify Runner in GitLab
 
 Go back to GitLab and confirm the runner shows as:
 
 local-docker-runner (online)
 
-6. Use the Runner in .gitlab-ci.yml
+### 6. Use the Runner in .gitlab-ci.yml
 
 Add tags to force jobs to use your runner:
 
@@ -121,8 +152,10 @@ oidc_test:
 ```
     
 -------------------
+# Setting up AWS to work with gitlab
+------------------
 
-## Step 1 - Create the Identity provider in aws
+###  Step 1 - Create the Identity provider in aws
 - URL: https://gitlab.com
 - Audience: pick sts.amazonaws.com (recommended, and common)
 <img width="1847" height="658" alt="image" src="https://github.com/user-attachments/assets/b5e87077-adaa-46bd-bc84-fcf93081fcee" />
@@ -130,7 +163,7 @@ oidc_test:
 Keep note of the ARN for the provider we just added. This will be required in the next step where we will create a trust policy
 <img width="1880" height="750" alt="image" src="https://github.com/user-attachments/assets/2e2c7ebd-d86b-4e9b-8344-c7e4b34de064" />
 
-## Step 2: Create a policy that defines what can be done using the token
+###  Step 2: Create a policy that defines what can be done using the token
 
 <img width="1487" height="692" alt="image" src="https://github.com/user-attachments/assets/f844066a-445d-43e8-85c1-f1ca7795146d" />
 
@@ -139,7 +172,7 @@ Keep note of the ARN for the provider we just added. This will be required in th
 
 I created a policy with some s3 actions on my account. Even though i gave it access to all my buckets, its better to lock it to specific resources.
 
-## Step 3 — AWS: Create an IAM Role that trusts GitLab tokens
+###  Step 3 — AWS: Create an IAM Role that trusts GitLab tokens
 
 1. Create a custom trust policy in IAM 
 <img width="1862" height="532" alt="image" src="https://github.com/user-attachments/assets/d08b284d-d9e6-48e9-beeb-d130e022c70f" />
@@ -192,6 +225,9 @@ That’s the standard pattern in GitLab’s AWS OIDC guidance.
 6. Add the policy to the trust policy we created in Step 2
    <img width="1903" height="761" alt="image" src="https://github.com/user-attachments/assets/4ce16625-bf69-4c7c-a33a-e1bee690fb57" />
 
+-------------------
+# Setting up the pipelines in gitlab
+------------------
 
 ## Setup gitlab to connect to AWS
 
@@ -225,7 +261,9 @@ The flow is:
 - The AWS CLI exchanges that token for temporary AWS credentials
 - The job runs AWS commands using those temporary credentials
 
-
+-------------------
+# Setting up an S3 bucket that contains files that will be read from the pipeline
+------------------
 
 # Create an S3 bucket and put a file in it
 <img width="1250" height="487" alt="image" src="https://github.com/user-attachments/assets/446947a6-ab3e-4191-85dc-8d588bc87199" />
