@@ -53,5 +53,10 @@ If we didnt have /private in the path in the origin settings then we would have 
     <img width="1877" height="547" alt="image" src="https://github.com/user-attachments/assets/42518196-d035-4613-8ee8-fd9e08041276" />
 
  15. Now that the alternate domain name has been added, we need to add an ALIAS record for the cloudfront distribution in route53, this is done so that the request can be sent to the cloudfront distribution  
+   <img width="1742" height="733" alt="image" src="https://github.com/user-attachments/assets/52510e35-1139-4e61-9015-2cef774cfb56" />
+ This will add 2 records in our hosted zone, 1 for Ipv4 and 1 for IPV6
+   <img width="1055" height="442" alt="image" src="https://github.com/user-attachments/assets/29a3aa52-13f7-4434-8049-142cff4915be" />
+ 16. Now we can access our website using the custom domain we created.
+     <img width="1121" height="303" alt="image" src="https://github.com/user-attachments/assets/2f3ee268-bdd9-4aea-b529-ec378abdb040" />
 
 
