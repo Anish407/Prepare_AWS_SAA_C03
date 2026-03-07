@@ -39,7 +39,19 @@ If we didnt have /private in the path in the origin settings then we would have 
    <img width="1447" height="330" alt="image" src="https://github.com/user-attachments/assets/df9b9222-7fe4-4b50-8af2-013fd05e9941" />
 9. In order to use TLS with the alternate domain name, we need to request a certificate from ACM
     <img width="1548" height="778" alt="image" src="https://github.com/user-attachments/assets/a55e8d8c-cc4e-4d13-9015-3d311a31c7a4" />
+10. To add an Alias record for the cloudfront distribution in Route53, we need to add an alternate domain name in the cloudfront distribution. Only cloudfront distributions with an alternate domain name can be added as an Alias record in route 53
+    <img width="1797" height="698" alt="image" src="https://github.com/user-attachments/assets/ed5ebe65-e3df-4768-b7db-b20e6b8f1ed6" />
+11. Inorder to add an alternate domain name in route53, we need to have a certificate with that name, so we create a certificate first for that subdomain.
+    <img width="1797" height="603" alt="image" src="https://github.com/user-attachments/assets/21e93899-938f-4ee7-8f32-bae8f6cf37a6" />
+12. After the certificate is created , we can see that the status is pending, this is because the certificate has not been validated yet. To complete the validation, we need to add the provided CName record in our hosted zone.
+<img width="1872" height="526" alt="image" src="https://github.com/user-attachments/assets/e8239424-8836-4a0f-b5e7-f7f858e03c49" />
+13. After adding the records to the hosted zone, we can see that a new Cname record has been added
+    <img width="1893" height="662" alt="image" src="https://github.com/user-attachments/assets/7c522ece-5123-4444-a7cb-51bf3562ec58" />
+   And now the certificate status has changed to issued.
+   <img width="1878" height="469" alt="image" src="https://github.com/user-attachments/assets/eaddd5c1-eff5-4ea3-932f-3e9a03eb99ef" />
+14. Now that the certificate has been issued, we can add the alternate domain name in cloud front
+    <img width="1877" height="547" alt="image" src="https://github.com/user-attachments/assets/42518196-d035-4613-8ee8-fd9e08041276" />
 
-   
+ 15. Now that the alternate domain name has been added, we need to add an ALIAS record for the cloudfront distribution in route53, this is done so that the request can be sent to the cloudfront distribution  
 
 
