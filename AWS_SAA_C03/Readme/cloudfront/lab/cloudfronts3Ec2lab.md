@@ -19,8 +19,9 @@
 
 ## Steps Phase 1
 
-1. Create an S3 bucket that will be the origin for cloudfront
-   <img width="1363" height="687" alt="image" src="https://github.com/user-attachments/assets/8fdef851-78a0-4558-8732-bdfb1b269abe" />
+1. Create an S3 bucket that will be the origin for cloudfront, here I will create clickonce artifacts for a WPF application and store the artifacts in the s3 bucket. We can even store a simple html file also.
+   <img width="828" height="382" alt="image" src="https://github.com/user-attachments/assets/dde9a454-676b-4a1d-b0ff-6b53889f3db1" />
+
 2. Create cloudfront distribution
    <img width="1476" height="727" alt="image" src="https://github.com/user-attachments/assets/e0e58a26-82fa-4cf9-8d76-aaa485692830" />
    <img width="1872" height="728" alt="image" src="https://github.com/user-attachments/assets/bf36bb87-2fcc-4957-8a6f-64366eb099ea" />
