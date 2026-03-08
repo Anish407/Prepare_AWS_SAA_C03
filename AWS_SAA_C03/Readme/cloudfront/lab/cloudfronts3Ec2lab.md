@@ -63,6 +63,8 @@ If we didnt have /private in the path in the origin settings then we would have 
     <img width="781" height="377" alt="image" src="https://github.com/user-attachments/assets/5cdc0c60-ce36-4447-9c51-3858c8a99fc8" />
     We can download the application from a url 
      <img width="712" height="115" alt="image" src="https://github.com/user-attachments/assets/b567570f-e98b-4a5f-9f46-b7129a16f9f5" />
+17. I even added a simple html file and that too can be accessed
+    <img width="581" height="188" alt="image" src="https://github.com/user-attachments/assets/b0981e28-a269-4c7a-9a01-7e38ea496e16" />
 
 
 
