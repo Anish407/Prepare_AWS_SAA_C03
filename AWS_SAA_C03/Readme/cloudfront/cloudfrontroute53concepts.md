@@ -1,4 +1,7 @@
-﻿# DNS, Route 53, CloudFront & Domain Ownership -- Complete Guide
+# Lab
+- [Setup s3 and Ec2 as origins in cloudfront with TLS and Alternate domain name](AWS_SAA_C03/Readme/cloudfront/lab/cloudfronts3Ec2lab.md)
+
+ # DNS, Route 53, CloudFront & Domain Ownership -- Complete Guide
 
 This document explains:
 
