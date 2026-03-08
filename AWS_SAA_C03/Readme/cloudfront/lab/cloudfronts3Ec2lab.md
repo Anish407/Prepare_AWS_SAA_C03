@@ -57,7 +57,12 @@ If we didnt have /private in the path in the origin settings then we would have 
    <img width="1742" height="733" alt="image" src="https://github.com/user-attachments/assets/52510e35-1139-4e61-9015-2cef774cfb56" />
  This will add 2 records in our hosted zone, 1 for Ipv4 and 1 for IPV6
    <img width="1055" height="442" alt="image" src="https://github.com/user-attachments/assets/29a3aa52-13f7-4434-8049-142cff4915be" />
- 16. Now we can access our website using the custom domain we created.
-     <img width="1121" height="303" alt="image" src="https://github.com/user-attachments/assets/2f3ee268-bdd9-4aea-b529-ec378abdb040" />
+ 16. Now since we added the Origin path as /private 
+     <img width="635" height="250" alt="image" src="https://github.com/user-attachments/assets/9e759855-4489-49e7-aac8-93dac5d99264" />
+   and the clickonce artifacts are present under a folder called /clickonce
+    <img width="781" height="377" alt="image" src="https://github.com/user-attachments/assets/5cdc0c60-ce36-4447-9c51-3858c8a99fc8" />
+    We can download the application from a url 
+     <img width="712" height="115" alt="image" src="https://github.com/user-attachments/assets/b567570f-e98b-4a5f-9f46-b7129a16f9f5" />
+
 
 
