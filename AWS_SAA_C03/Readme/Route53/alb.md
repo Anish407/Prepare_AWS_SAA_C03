@@ -15,3 +15,5 @@ This lab demonstrates a **modern AWS edge architecture** where:
 
 This architecture mirrors real production systems used in large-scale web platforms.
 
+<img width="966" height="567" alt="image" src="https://github.com/user-attachments/assets/a7aeb464-ecd7-4e66-b98a-fd71af5f5266" />
+
