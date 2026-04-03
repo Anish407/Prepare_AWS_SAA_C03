@@ -270,6 +270,8 @@ This role is responsible for:
 
 - Pulling the image from ECR
 - Writing logs to CloudWatch Logs
+  <img width="1496" height="618" alt="image" src="https://github.com/user-attachments/assets/53b66964-982b-4bb7-8295-185f8a3ccb1f" />
+
 
 Name example:
 - `ecsTaskExecutionRole`
@@ -288,12 +290,117 @@ Later, when your application calls:
 
 Name example:
 - `ecsAppTaskRole`
+--- 
+### Important mental model
+
+If the container cannot start because it cannot pull the image or create logs, check the **task execution role** first.
+
+If the container starts but your app gets `AccessDenied` when calling S3/SSM/Secrets Manager, check the **task role**.
+
+---
+
+## Step 8 - Create the ALB and target group
+
+### Target group
+
+Create a target group with:
+
+- Target type: **IP**
+- Protocol: HTTP
+- Port: 80
+- Health check path: `/`
+- VPC: your lab VPC
+
+<img width="1358" height="533" alt="image" src="https://github.com/user-attachments/assets/b717ceb3-3d3e-4551-9eea-a3d73a596ada" />
+
+<img width="1526" height="511" alt="image" src="https://github.com/user-attachments/assets/1b8728d4-f9ee-4f4b-a954-5e68bcd11795" />
+
+<img width="1063" height="457" alt="image" src="https://github.com/user-attachments/assets/862195f3-2696-4500-8379-0b8541231d94" />
 
 
+Why IP target type matters:
+- ECS Fargate tasks in `awsvpc` mode get their own ENIs and private IPs.
+- The ALB registers task IPs, not EC2 instances.
+
+---
 
 
+### Create an **Application Load Balancer**.
+<img width="1157" height="527" alt="image" src="https://github.com/user-attachments/assets/9781658a-d812-4509-8957-50e3180c4601" />
 
+For the first version of the lab:
+- Scheme: **internet-facing**
+- Subnets: **public subnets**
+   <img width="1147" height="460" alt="image" src="https://github.com/user-attachments/assets/464c3f6a-5ec4-4ec7-8062-07674215b579" />
+- Security group: **ALB security group**
+  <img width="991" height="158" alt="image" src="https://github.com/user-attachments/assets/e3875d62-687d-458e-9413-0cf9fb11e454" />
 
+- Listener: `HTTP 80`
+
+## Step 9 - Create the ECS cluster
+
+Create an ECS cluster:
+
+- Launch type: Fargate
+- Name example: `static-html-cluster`
+<img width="1547" height="375" alt="image" src="https://github.com/user-attachments/assets/50818719-0b97-4082-b028-6220ecba73ac" />
+
+---
+
+## Step 10 - Create the ECS task definition
+
+Create a Fargate task definition.
+
+### Task definition settings
+
+- Launch type compatibility: **Fargate**
+- Network mode: **awsvpc**
+- Task CPU: `256`
+- Task memory: `512`
+- Task execution role: `ecsTaskExecutionRole`
+- Task role: `ecsAppTaskRole`
+<img width="1340" height="527" alt="image" src="https://github.com/user-attachments/assets/6688318f-0380-4ae2-90cd-3a9b89faccb2" />
+
+### Container settings
+
+- Container name: `static-html`
+- Image: your ECR image URI
+- Container port: `80`
+<img width="1039" height="467" alt="image" src="https://github.com/user-attachments/assets/fea55ee3-776c-4839-9d6c-733e6a562ee0" />
+
+---
+
+## Step 11 - Create the ECS service
+
+Create a service from the task definition.
+
+### Service settings
+
+- Launch type: Fargate
+- Desired tasks: `1`
+- Subnets: **private subnets**
+- Assign public IP: **DISABLED**
+- Security group: **ECS task security group**
+- Load balancer: **enabled**
+- Target group: use the ALB target group created earlier
+- Container name: `static-html`
+- Container port: `80`
+<img width="1241" height="539" alt="image" src="https://github.com/user-attachments/assets/b7a8dcd1-f227-449d-aea8-6dfe17aec39a" />
+<img width="878" height="425" alt="image" src="https://github.com/user-attachments/assets/235e64f2-57a2-48a0-9ff9-8acc5d7a55d1" />
+<img width="867" height="532" alt="image" src="https://github.com/user-attachments/assets/5831c74e-ab8b-474e-a496-e5b062b9faff" />
+<img width="797" height="323" alt="image" src="https://github.com/user-attachments/assets/ea5cbd9a-23b9-4f57-9a49-36b51d6e3f81" />
+
+What should happen now:
+
+1. ECS starts the task in a private subnet.
+2. Fargate uses the **task execution role** to pull the image.
+3. Traffic reaches ECR through the **interface endpoints**.
+4. Image layers come from **S3 through the S3 gateway endpoint**.
+5. Logs go to **CloudWatch Logs through the logs interface endpoint**.
+6. ALB health checks reach the task on port 80.
+7. The target becomes healthy.
+
+---
 
 
 
