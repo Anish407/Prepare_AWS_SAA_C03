@@ -199,8 +199,95 @@ Why this matters:
 
 ---
 
+## Step 5 - Create the VPC endpoints
+
+This is the part most people miss.
+
+Create these endpoints:
+
+### Interface endpoints
+
+In the **private subnets**, create:
+
+- `com.amazonaws.us-east-1.ecr.api`
+- `com.amazonaws.us-east-1.ecr.dkr`
+- `com.amazonaws.us-east-1.logs`
 
 
+  <img width="1598" height="752" alt="image" src="https://github.com/user-attachments/assets/1785cc67-9626-4500-9891-bb716face3c5" />
+  <img width="1496" height="807" alt="image" src="https://github.com/user-attachments/assets/60098a34-a868-4b7e-a8e2-5b88c539ab13" />
+- Select the private subnets
+  <img width="1870" height="562" alt="image" src="https://github.com/user-attachments/assets/6b357808-867a-490d-834e-1e5662da95ce" />
+- Also select the security group as the endpoint-sg we created
+  <img width="1583" height="807" alt="image" src="https://github.com/user-attachments/assets/45872bd8-b171-4cf5-8431-5d596ee1c1c3" />
+
+
+Attach the **endpoint security group**.
+
+Enable **Private DNS**.
+---
+
+### Gateway endpoint
+
+Create the **S3 gateway endpoint**:
+
+- `com.amazonaws.us-east-1.s3`
+<img width="1446" height="797" alt="image" src="https://github.com/user-attachments/assets/73cf80e1-c649-454c-a56f-e6c9e5910598" />
+
+Associate it with the **private route table**.
+<img width="1831" height="613" alt="image" src="https://github.com/user-attachments/assets/e0163af5-53c4-43c9-9299-27c824b54d19" />
+
+### Why each endpoint exists
+
+- **ecr.api** -> ECS/Fargate talks to the ECR API.
+- **ecr.dkr** -> Docker image pull path.
+- **logs** -> container logs to CloudWatch Logs.
+- **s3 gateway** -> actual image layers are stored in S3.
+
+If you later add app calls to AWS services, you will likely add more endpoints such as:
+
+- `ssm`
+- `secretsmanager`
+- `kms`
+- `ecs`
+- `ec2messages`
+- `ssmmessages`
+
+---
+
+## Step 6 - Create IAM roles
+
+### A. Task execution role
+
+This role is used by **ECS/Fargate infrastructure**, not by your code.
+1. Create a role (trust policy)
+<img width="1802" height="795" alt="image" src="https://github.com/user-attachments/assets/3d47207f-1df5-4011-b3a4-02006d5b5dbe" />
+2. Use the AWS managed policy:
+  - `AmazonECSTaskExecutionRolePolicy`
+ <img width="1367" height="795" alt="image" src="https://github.com/user-attachments/assets/506e3c89-3fda-4a75-a5d5-a50f94180111" /> 
+
+This role is responsible for:
+
+- Pulling the image from ECR
+- Writing logs to CloudWatch Logs
+
+Name example:
+- `ecsTaskExecutionRole`
+
+### B. Task role
+
+This role is used by **your application code inside the container**.
+<img width="1506" height="795" alt="image" src="https://github.com/user-attachments/assets/16a5205a-583b-4a70-9ff6-cbf88db5ff02" />
+
+For this static HTML lab, you do not need any real permissions yet. But i just added s3 fullaccess.
+
+Later, when your application calls:
+- S3 -> add S3 permissions here
+- SSM Parameter Store -> add SSM permissions here
+- Secrets Manager -> add secrets permissions here
+
+Name example:
+- `ecsAppTaskRole`
 
 
 
