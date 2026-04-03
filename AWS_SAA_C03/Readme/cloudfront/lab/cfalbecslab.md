@@ -401,9 +401,25 @@ What should happen now:
 7. The target becomes healthy.
 
 ---
+## Trying a new listener (make the app available on 9090 for my IP)
+
+Because the existing listener listens on 80, I added a new listener and used the same target group for the listener to forward the traffic to port 80 on the ecs cluster.
+
+<img width="917" height="443" alt="image" src="https://github.com/user-attachments/assets/afd174c1-72c7-48c2-bb54-3bd681994153" />
+
+Now creating the listener alone is not enough, we need to allow inbound traffic on the alb security group to forward request on port 9090
+
+<img width="1445" height="339" alt="image" src="https://github.com/user-attachments/assets/02720090-2d64-403c-bcd5-b2955a07c381" />
 
 
+<img width="1135" height="262" alt="image" src="https://github.com/user-attachments/assets/baba2770-f945-47ea-88ca-9181b052f3ce" />
 
+Now my app is available on port 80
+
+<img width="1165" height="495" alt="image" src="https://github.com/user-attachments/assets/c51fd331-8b72-4e33-8e10-24f052eb2081" />
+
+and the 9090 port that we allowed for my IP
+<img width="1120" height="520" alt="image" src="https://github.com/user-attachments/assets/6180d26a-e034-4105-a6b5-be2f74bd89b2" />
 
 
 
