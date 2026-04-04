@@ -5,6 +5,9 @@ import aws_cdk as cdk
 
 from private_ec2_ssm_igw_nat_cdk.private_ec2_ssm_igw_nat_cdk_stack import PrivateEc2SsmIgwNatCdkStack
 from private_ec2_ssm_igw_nat_cdk.route53stack import Route53Stack
+from private_ec2_ssm_igw_nat_cdk.stacks.ecsstack import EcsStack
+from private_ec2_ssm_igw_nat_cdk.stacks.ecsstack import EcsStack
+from private_ec2_ssm_igw_nat_cdk.stacks.networkstack import NetworkStack
 
 
 app = cdk.App()
@@ -22,18 +25,35 @@ ENVIRONMENTS = {
 
 env= ENVIRONMENTS["dev"]
 
-stack1=PrivateEc2SsmIgwNatCdkStack(app, "PrivateEc2SsmIgwNatCdkStack",
+# stack1=PrivateEc2SsmIgwNatCdkStack(app, "PrivateEc2SsmIgwNatCdkStack",
+#     env=env,
+#     )
+
+
+
+# stack2=Route53Stack(app, "Route53Stack",
+#                     vpc=stack1.vpc,
+#                     destinationIP=stack1.destination_instance.instance_private_ip,
+#                     env=env,
+#                     )
+
+# stack2.add_dependency(stack1)
+
+network_stack = NetworkStack(
+    app,
+    "NetworkStack",
     env=env,
-    )
+)
 
+ecs_stack = EcsStack(
+    app,
+    "EcsStack",
+    vpc=network_stack.vpc,
+    listener=network_stack.listener,
+    alb_security_group=network_stack.alb_security_group,
+    env=env,
+)
 
-
-stack2=Route53Stack(app, "Route53Stack",
-                    vpc=stack1.vpc,
-                    destinationIP=stack1.destination_instance.instance_private_ip,
-                    env=env,
-                    )
-
-stack2.add_dependency(stack1)
+ecs_stack.add_dependency(network_stack)
 
 app.synth()
