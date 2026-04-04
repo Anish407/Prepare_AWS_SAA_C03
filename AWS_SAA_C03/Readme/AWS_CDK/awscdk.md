@@ -3,6 +3,7 @@
 - [Step 1. Create a PrivateEC2 and connect to it using SSM, NAT and IGW (DONE)](../../../private-ec2-ssm-igw-nat-cdk/private_ec2_ssm_igw_nat_cdk/private_ec2_ssm_igw_nat_cdk_stack.py)
 - [Step 2. Gave the private ec2 an internal DNS name by creating a route53 private hosted zone (DONE)](../../../private-ec2-ssm-igw-nat-cdk/private_ec2_ssm_igw_nat_cdk/route53stack.py)
 - [Step 3. Now make the ec2 register in cloudmap and use that name (Pending)](../../../private-ec2-ssm-igw-nat-cdk/private_ec2_ssm_igw_nat_cdk/route53stack.py)
+- [Step 4. Cloudfront -> ALB -> ECS](../../../private-ec2-ssm-igw-nat-cdk/private_ec2_ssm_igw_nat_cdk/stacks/networkstack.py)
 
 # Setting up a CDK project
 
