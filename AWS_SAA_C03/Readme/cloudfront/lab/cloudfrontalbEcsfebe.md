@@ -1,5 +1,29 @@
+# CloudFront -> ALB -> ECS (Fargate) -> Static HTML Lab
+
+This lab builds a private containerized web app flow where **CloudFront** sends traffic to an **Application Load Balancer**, the ALB forwards to an **ECS Fargate service**, and the ECS task pulls its image from **Amazon ECR using VPC endpoints**.
+
+The purpose of this lab is not just to make it work once. The purpose is to understand **why each piece exists**, **what breaks when it is missing**, and **what you must add later** when your app starts talking to services like **S3**, **SSM**, or **Secrets Manager**.
+
+---
+## Architecture Diagram
+
+<img width="623" height="416" alt="image" src="https://github.com/user-attachments/assets/c4f3f858-a5a4-4581-8744-c2a5d0e3df24" />
 
 
+---
+
+## What we are building
+
+**Request flow**
+
+1. User calls CloudFront.
+2. CloudFront forwards the request to the ALB origin.
+3. ALB forwards the request to an ECS target group.
+4. ECS Fargate task serves a static HTML page.
+5. ECS task pulls the container image from ECR **privately** using VPC endpoints.
+6. Container logs go to CloudWatch Logs.
+
+---
 
 
 ### Steps:
@@ -65,6 +89,7 @@ Create an ALB security group:
 
 - Inbound: `HTTP 80` from the source you decide for the lab
 - Outbound: allow to ECS task security group or all outbound
+<img width="1168" height="391" alt="image" src="https://github.com/user-attachments/assets/1c5a30e9-0619-4fc2-821c-1a96bd4bcecc" />
 
 For a first working lab, keeping the ALB public is simpler.
 
@@ -83,6 +108,7 @@ Create a security group for interface endpoints:
 
 - Inbound: `HTTPS 443` from the ECS task security group
 - Outbound: default
+<img width="1172" height="374" alt="image" src="https://github.com/user-attachments/assets/abec1f5c-932f-4d0b-b13e-286e037fa47f" />
 
 Why this matters:
 - Your ECS task talks to ECR API, ECR Docker endpoint, and CloudWatch Logs using **443**.
@@ -199,7 +225,9 @@ For the first version of the lab:
 - Create a rule for the backend app and in the transform we replace the /be/* with a /, so that we dont have to set a base path in our api and the request is forwarded without the /be prefix. 
   <img width="1512" height="626" alt="image" src="https://github.com/user-attachments/assets/817dbf96-9327-4bcb-a280-3318c8dcea3e" />
   
-- 
+- This is how the listener will look like
+  <img width="1547" height="549" alt="image" src="https://github.com/user-attachments/assets/3c07fd53-8a58-43db-a5ee-9b55c0988fe8" />
+
 
 ### Target group
 
