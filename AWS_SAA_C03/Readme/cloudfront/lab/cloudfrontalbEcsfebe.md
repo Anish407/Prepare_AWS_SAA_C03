@@ -223,9 +223,83 @@ Why IP target type matters:
    <img width="1052" height="336" alt="image" src="https://github.com/user-attachments/assets/1cd1f0e0-183f-4aa6-acb8-aec64fb9a9be" />
 The backend app has a health check endpoint called /health
 ---
+---
+
+## Step 9 - Create the ECS cluster
+
+Create an ECS cluster:
+
+- Launch type: Fargate
+- Name example: `my-ecs-cluster`
+  <img width="1536" height="628" alt="image" src="https://github.com/user-attachments/assets/4629f2d5-e87f-4538-8842-484e736eec6a" />
+
+---
+
+## Step 10 - Create the ECS task definition
+
+Create a Fargate task definition.
+
+### Task definition settings Create 2 task definitions
+
+- Launch type compatibility: **Fargate**
+  <img width="1358" height="647" alt="image" src="https://github.com/user-attachments/assets/778ff98a-479f-48c2-812f-3a603e9fc416" />
+
+- Network mode: **awsvpc**
+- Task CPU: `256`
+- Task memory: `512`
+- Task execution role: `ecsTaskExecutionRole`
+- Task role: `ecsAppTaskRole`
+  <img width="1127" height="452" alt="image" src="https://github.com/user-attachments/assets/bf6ac2d0-2682-4216-87eb-f1cd33486829" />
+
+### Front end task definition
+  <img width="1481" height="630" alt="image" src="https://github.com/user-attachments/assets/b5cf1c06-0bd2-4866-8d79-f58274b01311" />
+
+### Backend task definition
+  <img width="1378" height="612" alt="image" src="https://github.com/user-attachments/assets/8caa8bf8-1c06-4a06-820a-2ac93c81f5f0" />
+  <img width="1522" height="701" alt="image" src="https://github.com/user-attachments/assets/6e37ec1a-66a8-4a90-b0bf-54e487a67b34" />
+  <img width="1582" height="657" alt="image" src="https://github.com/user-attachments/assets/94a349d4-149d-4fd0-a415-a0d95ea14f2f" />
+
+## Step 11 - Create the Front end ECS service
+
+Create a service from the task definition.### Service settings
+
+- Launch type: Fargate
+  <img width="1556" height="718" alt="image" src="https://github.com/user-attachments/assets/309d6815-b5aa-4874-b980-2106c5b23ca4" />
+  <img width="1500" height="432" alt="image" src="https://github.com/user-attachments/assets/a730ef35-f395-4030-9471-55b576decc22" />
+
+- Desired tasks: `1`
+  <img width="1646" height="563" alt="image" src="https://github.com/user-attachments/assets/5e582698-0d78-4aec-8e2c-ac32782f5c24" />
+
+- Subnets: **private subnets**
+- Assign public IP: **DISABLED**
+- Security group: **ECS task security group**
+  <img width="1435" height="671" alt="image" src="https://github.com/user-attachments/assets/ef34d931-7c7d-4468-9f3c-36b6ef4970f5" />
+- Turn off public IP.
+- Load balancer: **enabled**
+  <img width="1442" height="661" alt="image" src="https://github.com/user-attachments/assets/69843ad3-d65e-4f94-bfae-a4f0e76a4c58" />
+
+- Target group:
+<img width="1572" height="681" alt="image" src="https://github.com/user-attachments/assets/f69177bb-8867-41d8-aa67-e875b8cc7042" />
+
+## Step 12 - Create the Backend end ECS service
+ <img width="1457" height="672" alt="image" src="https://github.com/user-attachments/assets/034a9fd2-7037-449a-a754-8a1bc528121f" />
+ <img width="1535" height="621" alt="image" src="https://github.com/user-attachments/assets/8bf60278-8038-4864-affd-718f948d8ee5" />
+ <img width="1456" height="687" alt="image" src="https://github.com/user-attachments/assets/69bd8b56-afe7-4e03-af27-7a239019927a" />
+ - We can see that the backend service is now being created and the front end is already running. Wait for the backend to start running.
+ <img width="1571" height="652" alt="image" src="https://github.com/user-attachments/assets/588b7d7d-2808-4a54-8060-41f2d598a401" />
 
 
+What should happen now:
 
+1. ECS starts the task in a private subnet.
+2. Fargate uses the **task execution role** to pull the image.
+3. Traffic reaches ECR through the **interface endpoints**.
+4. Image layers come from **S3 through the S3 gateway endpoint**.
+5. Logs go to **CloudWatch Logs through the logs interface endpoint**.
+6. ALB health checks reach the task on port 80.
+7. The target becomes healthy.
+
+---
 
 
 
