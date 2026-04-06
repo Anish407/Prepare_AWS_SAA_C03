@@ -72,7 +72,9 @@ For a first working lab, keeping the ALB public is simpler.
 
 Create a security group for ECS tasks:
 
-- Inbound: `HTTP 80` from the **ALB security group**
+- Inbound: `HTTP 80` from the **ALB security group** for frontend,
+- Inbound: `HTTP 8080` from the **ALB security group** for backend
+- <img width="1430" height="352" alt="image" src="https://github.com/user-attachments/assets/56aa6125-a158-4394-997e-09f1372a4ef9" />
 - Outbound: allow all outbound for now
 
 ### Endpoint security group
