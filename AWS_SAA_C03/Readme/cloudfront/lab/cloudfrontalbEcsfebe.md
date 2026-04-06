@@ -299,6 +299,8 @@ What should happen now:
 6. ALB health checks reach the task on port 80.
 7. The target becomes healthy.
 
+<img width="1582" height="793" alt="image" src="https://github.com/user-attachments/assets/b2c07965-6caf-4aab-a587-fe03b0e4ac97" />
+
 ---
 
 
