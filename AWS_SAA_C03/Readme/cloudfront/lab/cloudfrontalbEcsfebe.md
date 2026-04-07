@@ -359,6 +359,8 @@ What should happen now:
 
 - Now create a new listener since alb will be listening at 443 instead of 80 and configure the same rules as we did for the http listener
   <img width="1586" height="433" alt="image" src="https://github.com/user-attachments/assets/d116799d-db8c-4fc4-be29-a032e931ad4e" />
+  <img width="1580" height="568" alt="image" src="https://github.com/user-attachments/assets/d06cd7e5-7640-43c2-9463-1dd9ca947044" />
+
 
 - We can now access the applications with the custom domain names on https
   <img width="1570" height="716" alt="image" src="https://github.com/user-attachments/assets/03218b95-28dc-472f-a373-00f073a30beb" />
