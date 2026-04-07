@@ -456,7 +456,7 @@ and the 9090 port that we allowed for my IP
 # learnings
 
 - We tried to change the domain name by adding a new certificate and registered it with the ALB and cloudfront but the app was still available on the old name even after removing the certificate and the entries in the load balancer. The problem was that the A record existed in the route53 hosted zone which was an alias to cloudfront.
-
+- Similarly the cloudfront behavior can now point to 443 instead of 80 since a valid certificate was added. Update the security group rules also to allow 443
 
 
 
