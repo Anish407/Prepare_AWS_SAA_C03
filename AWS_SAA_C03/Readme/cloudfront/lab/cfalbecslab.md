@@ -438,6 +438,9 @@ and the 9090 port that we allowed for my IP
   <img width="1655" height="801" alt="image" src="https://github.com/user-attachments/assets/9627120d-3fa3-4338-b3ec-9daa9e6134fb" />
 - Once the certificate is requested, it needs to be validated. So add the CNAME in the route53 hosted zone to complete the certificate validation
   <img width="1842" height="687" alt="image" src="https://github.com/user-attachments/assets/aca86d4f-5ae9-42f3-a19a-4e85efd833f3" />
+- Also add an A record in the hosted zone for the requested domain
+  <img width="1761" height="783" alt="image" src="https://github.com/user-attachments/assets/122392d6-99a5-4c10-a625-ac6964ef29f0" />
+
 - Also select the certificate for the alb listener
   <img width="1822" height="767" alt="image" src="https://github.com/user-attachments/assets/3d4a8c66-5e64-4012-8f01-ff0ee144338b" />
 - Change the security group for the alb to allow traffic on port 443
