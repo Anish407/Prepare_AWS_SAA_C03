@@ -421,42 +421,6 @@ Now my app is available on port 80
 and the 9090 port that we allowed for my IP
 <img width="1120" height="520" alt="image" src="https://github.com/user-attachments/assets/6180d26a-e034-4105-a6b5-be2f74bd89b2" />
 
-## Add CLoudFront 
-
-### Step 1: Create a distribution
-- Go to cloudfront and create a distribution
-  <img width="1672" height="674" alt="image" src="https://github.com/user-attachments/assets/a2be7619-547f-4deb-94db-792de7cb76ae" />
-  <img width="1842" height="685" alt="image" src="https://github.com/user-attachments/assets/abac628d-bde4-4191-8ad8-ffbdd4183971" />
-
-- Next we will add our own domain name to cloudfront and we will need to create a certificate.
-  <img width="1667" height="470" alt="image" src="https://github.com/user-attachments/assets/7de9e31c-23f2-4834-9971-578a90005981" />
-- Edit the origin to listen forward traffic at port 80
-- <img width="1452" height="691" alt="image" src="https://github.com/user-attachments/assets/c862f8cf-e6f9-4ff2-9200-6bbb2421aa79" />
-- Edit the cloudfront behavior to forward http traffic to the load balancer
-  <img width="1553" height="606" alt="image" src="https://github.com/user-attachments/assets/598b9db7-7aa2-4a88-9a0a-5371e8deac2b" />
-- Now we will change the domain name for the cloudfront, so we need to request a certificate with that name
-  <img width="1655" height="801" alt="image" src="https://github.com/user-attachments/assets/9627120d-3fa3-4338-b3ec-9daa9e6134fb" />
-- Once the certificate is requested, it needs to be validated. So add the CNAME in the route53 hosted zone to complete the certificate validation
-  <img width="1842" height="687" alt="image" src="https://github.com/user-attachments/assets/aca86d4f-5ae9-42f3-a19a-4e85efd833f3" />
-- Also add an A record in the hosted zone for the requested domain
-  <img width="1761" height="783" alt="image" src="https://github.com/user-attachments/assets/122392d6-99a5-4c10-a625-ac6964ef29f0" />
-
-- Also select the certificate for the alb listener
-  <img width="1822" height="767" alt="image" src="https://github.com/user-attachments/assets/3d4a8c66-5e64-4012-8f01-ff0ee144338b" />
-- Change the security group for the alb to allow traffic on port 443
-  <img width="1892" height="487" alt="image" src="https://github.com/user-attachments/assets/b5bef8fc-b9f0-42e4-b44b-9619d675fcb9" />
-
-- Now create a new listener since alb will be listening at 443 instead of 80 and configure the same rules as we did for the http listener
-  <img width="1586" height="433" alt="image" src="https://github.com/user-attachments/assets/d116799d-db8c-4fc4-be29-a032e931ad4e" />
-
-- We can now access the applications with the custom domain names on https
-  <img width="1570" height="716" alt="image" src="https://github.com/user-attachments/assets/03218b95-28dc-472f-a373-00f073a30beb" />
-  <img width="752" height="232" alt="image" src="https://github.com/user-attachments/assets/49c77706-aa3d-4312-9d2f-a069b62dd0b9" />
-
-# learnings
-
-- We tried to change the domain name by adding a new certificate and registered it with the ALB and cloudfront but the app was still available on the old name even after removing the certificate and the entries in the load balancer. The problem was that the A record existed in the route53 hosted zone which was an alias to cloudfront.
-- Similarly the cloudfront behavior can now point to 443 instead of 80 since a valid certificate was added. Update the security group rules for the ALB  to allow 443
 
 
 
