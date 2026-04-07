@@ -453,7 +453,9 @@ and the 9090 port that we allowed for my IP
   <img width="1570" height="716" alt="image" src="https://github.com/user-attachments/assets/03218b95-28dc-472f-a373-00f073a30beb" />
   <img width="752" height="232" alt="image" src="https://github.com/user-attachments/assets/49c77706-aa3d-4312-9d2f-a069b62dd0b9" />
 
+# learnings
 
+- We tried to change the domain name by adding a new certificate and registered it with the ALB and cloudfront but the app was still available on the old name even after removing the certificate and the entries in the load balancer. The problem was that the A record existed in the route53 hosted zone which was an alias to cloudfront.
 
 
 
