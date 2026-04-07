@@ -7,7 +7,8 @@ The purpose of this lab is not just to make it work once. The purpose is to unde
 ---
 ## Architecture Diagram
 
-<img width="623" height="416" alt="image" src="https://github.com/user-attachments/assets/c4f3f858-a5a4-4581-8744-c2a5d0e3df24" />
+<img width="865" height="596" alt="image" src="https://github.com/user-attachments/assets/3668da9a-3cd6-4588-96bd-8867f30f5122" />
+
 
 
 ---
