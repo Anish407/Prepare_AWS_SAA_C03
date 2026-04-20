@@ -171,6 +171,10 @@ After the role is created:
 ```
 
   <img width="1277" height="662" alt="image" src="https://github.com/user-attachments/assets/63ee6d9a-2a76-42a6-a080-84c2af05db46" />
+  <img width="1598" height="702" alt="image" src="https://github.com/user-attachments/assets/744ad261-4f04-4478-a2a6-89d03985b281" />
+
+  <img width="1862" height="676" alt="image" src="https://github.com/user-attachments/assets/d29bbe78-5c18-4c96-9161-7d8ae1308afa" />
+
   
 ### Optional stricter version
 If you want to make it a bit more realistic later, you can scope permissions down further to:
