@@ -7,7 +7,7 @@ This lab is intentionally small but realistic. It teaches core Lambda patterns w
 
 ---
 
-## What you will learn
+## What we will learn
 - How S3 event notifications trigger Lambda
 - Why Lambda needs an execution role
 - How to read and write S3 objects from Python
