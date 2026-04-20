@@ -214,6 +214,7 @@ In the Lambda function configuration, add these environment variables:
 - `REJECTED_BUCKET` = your rejected bucket name
 - `PROCESSED_PREFIX` = `json/`
 - `REJECTED_PREFIX` = `errors/`
+ <img width="1626" height="817" alt="image" src="https://github.com/user-attachments/assets/553785e3-383e-4497-bfef-a6e3cbaaa9e2" />
 
 These make the code cleaner and avoid hardcoding resource names.
 
@@ -383,6 +384,7 @@ Now configure the source bucket to trigger the Lambda function.
 8. Suffix: `.csv`
 9. Enable trigger
 10. Save
+ <img width="1853" height="803" alt="image" src="https://github.com/user-attachments/assets/5adf95f2-8395-4456-b8aa-007a25738fee" />
 
 ## Why use both prefix and suffix
 Use both so the trigger only fires for:
