@@ -121,6 +121,12 @@ The Lambda function needs permissions to:
    - `AWSLambdaBasicExecutionRole`
 8. Create the role with the name:
    - `lambda-csv-to-json-role`
+  <img width="1778" height="814" alt="image" src="https://github.com/user-attachments/assets/612301cc-0a75-4fd0-965c-e0e7474a6b59" />
+  <img width="1731" height="821" alt="image" src="https://github.com/user-attachments/assets/28282952-1368-4702-bad8-94baff1641c0" />
+  <img width="1087" height="442" alt="image" src="https://github.com/user-attachments/assets/9fd7c2ba-d2fc-4cd4-be4d-a30857723236" />
+
+
+
 
 ## Add custom inline policy for S3 access
 After the role is created:
@@ -161,8 +167,11 @@ After the role is created:
     }
   ]
 }
+
 ```
 
+  <img width="1277" height="662" alt="image" src="https://github.com/user-attachments/assets/63ee6d9a-2a76-42a6-a080-84c2af05db46" />
+  
 ### Optional stricter version
 If you want to make it a bit more realistic later, you can scope permissions down further to:
 - source bucket `incoming/*`
