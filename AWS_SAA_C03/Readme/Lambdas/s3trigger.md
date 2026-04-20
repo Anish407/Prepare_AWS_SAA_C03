@@ -22,35 +22,6 @@ This lab is intentionally small but realistic. It teaches core Lambda patterns w
 
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/2279bceb-1763-4ec3-9c8b-fc98082ce32d" />
 
-```text
-User uploads CSV
-        |
-        v
-+-------------------+
-| Source S3 Bucket  |
-| incoming/*.csv    |
-+-------------------+
-        |
-        | ObjectCreated event for .csv files
-        v
-+-------------------+
-| AWS Lambda        |
-| Python function   |
-| - read CSV        |
-| - validate        |
-| - convert to JSON |
-+-------------------+
-      |           |
-      | success   | failure
-      v           v
-+-------------------+     +-------------------+
-| Processed Bucket  |     | Rejected Bucket   |
-| json/*.json       |     | errors/*.json     |
-+-------------------+     +-------------------+
-
-                Logs -> CloudWatch Logs
-```
-
 ---
 
 ## Services used
