@@ -45,11 +45,6 @@ Do not spread resources across multiple regions.
 ## Naming convention
 Replace `<unique-id>` with something unique such as your initials and a date.
 
-Example:
-- `anish-lambda-csv-source-20260420`
-- `anish-lambda-csv-processed-20260420`
-- `anish-lambda-csv-rejected-20260420`
-
 Suggested names:
 - Source bucket: `lambda-csv-source-<unique-id>`
 - Processed bucket: `lambda-csv-processed-<unique-id>`
