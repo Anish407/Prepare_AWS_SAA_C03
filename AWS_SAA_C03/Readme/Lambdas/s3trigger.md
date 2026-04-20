@@ -62,7 +62,6 @@ Before you start, make sure you have:
 - A small CSV file for testing
 
 Optional:
-- AWS CLI configured
 - VS Code or another editor
 
 ---
@@ -82,50 +81,24 @@ Optional:
 # Part 1: Create the S3 buckets
 
 Create these 3 buckets in the same region:
+  <img width="1262" height="488" alt="image" src="https://github.com/user-attachments/assets/35c68eb2-846a-47fc-8680-9683bc87f2ac" />
 
 1. Source bucket
    - Purpose: raw uploads
    - Example folder structure: `incoming/`
+     <img width="1296" height="495" alt="image" src="https://github.com/user-attachments/assets/3df7dfb0-bd26-4ba1-abbd-e1e63252d00c" />
+
 
 2. Processed bucket
    - Purpose: valid transformed JSON output
    - Example folder structure: `json/`
+     <img width="1042" height="487" alt="image" src="https://github.com/user-attachments/assets/a5ac8322-445e-4a4a-a9c4-c6cd5772e7ff" />
+
 
 3. Rejected bucket
    - Purpose: invalid file details and error artifacts
    - Example folder structure: `errors/`
-
-## Console steps
-1. Open **Amazon S3**
-2. Click **Create bucket**
-3. Create the source bucket
-4. Repeat for processed and rejected buckets
-
-## Suggested settings
-For this lab, the defaults are mostly fine:
-- Keep **Block all public access** enabled
-- Disable versioning unless you want to practice it
-- Default encryption can remain enabled with SSE-S3
-
-## Example bucket names
-- `lambda-csv-source-anish-20260420`
-- `lambda-csv-processed-anish-20260420`
-- `lambda-csv-rejected-anish-20260420`
-
----
-
-# Part 2: Create test folders
-
-In the source bucket, create this folder structure:
-- `incoming/`
-
-In the processed bucket, create:
-- `json/`
-
-In the rejected bucket, create:
-- `errors/`
-
-This is optional because S3 does not require folders, but it makes the lab cleaner and easier to understand.
+     <img width="1041" height="463" alt="image" src="https://github.com/user-attachments/assets/aaedbeb8-f54b-4c19-ac61-e716f42fad8e" />
 
 ---
 
