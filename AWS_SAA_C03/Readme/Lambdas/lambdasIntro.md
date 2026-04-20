@@ -4,5 +4,5 @@
 
 ## Read more about Lambdas here:
   - [AWS Lambda basics](./lambdabasics.md)
-  - [Triggers]
+  - Triggers
      - [s3 triggers CSV to JSON](./s3trigger.md)
