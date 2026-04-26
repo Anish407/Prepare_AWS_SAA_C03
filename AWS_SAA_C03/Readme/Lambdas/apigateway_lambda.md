@@ -182,6 +182,9 @@ Enable TTL on this table:
 
 This table stores idempotency records so that repeated POST requests with the same idempotency key do not create duplicate orders.
 
+<img width="837" height="388" alt="image" src="https://github.com/user-attachments/assets/776e2360-7549-4636-b1d8-d987f65d5841" />
+<img width="1552" height="580" alt="image" src="https://github.com/user-attachments/assets/f9c37113-d5e1-47ef-993b-f231e89a1dc0" />
+
 ---
 
 ## 3. Create the EventBridge bus
@@ -189,6 +192,9 @@ This table stores idempotency records so that repeated POST requests with the sa
 Create a custom EventBridge bus:
 
 - Name: `order-bus`
+
+  <img width="1536" height="638" alt="image" src="https://github.com/user-attachments/assets/d4ea3964-4996-4b4c-aebe-a2565f1f73dd" />
+  <img width="1582" height="477" alt="image" src="https://github.com/user-attachments/assets/79fbae4e-9885-486c-8100-cbe9c481b388" />
 
 This will receive business events after order creation.
 
