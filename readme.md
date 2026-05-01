@@ -9,6 +9,7 @@
 - [7. Route53](./AWS_SAA_C03/Readme/Route53/Route53Intro.md)
 - [8. Setting up Gitlab OIDC with AWS to run CDK using CICD](AWS_SAA_C03/Readme/GITLAB_AWS_OIDC/SetupGitlabOidc.md)
 - [9. Lambdas](AWS_SAA_C03/Readme/Lambdas/lambdasIntro.md)
+- [10. ACM (certificate manager)](AWS_SAA_C03/Readme/ACM/acmintro.md)
   
 
 
