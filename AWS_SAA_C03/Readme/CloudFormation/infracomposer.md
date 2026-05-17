@@ -1,657 +1,785 @@
-# AWS Infrastructure Composer with CloudFormation
+# AWS Infrastructure Composer Lab: Design and Deploy a Serverless Order API
 
-## Labs
-- [Cloudformation Infra Composer](./infracomposer.md)
+## Goal
 
-## Purpose of this README
+This lab teaches you how to use **AWS Infrastructure Composer** to visually design AWS infrastructure and generate a deployable CloudFormation/SAM template.
 
-This README explains AWS Infrastructure Composer from a CloudFormation point of view. It is focused on theory, exam understanding, and real project usage. It avoids step-by-step build instructions and deployment walkthroughs.
-
----
-
-## 1. What is AWS Infrastructure Composer?
-
-AWS Infrastructure Composer is a visual infrastructure design tool from AWS. It helps you visually compose AWS architectures and generate Infrastructure as Code templates.
-
-In simple terms:
-
-> AWS Infrastructure Composer is a visual editor for AWS CloudFormation and AWS SAM templates.
-
-It lets you drag AWS resources onto a canvas, connect them, configure their properties, and inspect the generated template.
-
-AWS describes Infrastructure Composer as a tool for visually composing modern applications on AWS. As you build visually, it creates AWS CloudFormation and AWS Serverless Application Model templates.
-
-Important point:
-
-> Infrastructure Composer is not the deployment engine. CloudFormation is still the deployment engine.
-
-Infrastructure Composer helps you create, understand, and edit templates. CloudFormation uses those templates to create and manage AWS resources.
-
----
-
-## 2. Old name: AWS Application Composer
-
-AWS Infrastructure Composer was previously known as AWS Application Composer.
-
-The new name is more accurate because the tool is not limited only to application-level resources. It is positioned as a visual way to compose AWS infrastructure backed by CloudFormation.
-
-For exam or interview questions, both names may appear, but the current name is:
-
-> AWS Infrastructure Composer
-
----
-
-## 3. Why Infrastructure Composer exists
-
-CloudFormation templates are powerful, but they can become difficult to read and maintain, especially when the architecture has many resources.
-
-Infrastructure Composer helps with this problem by providing a visual canvas.
-
-It is useful for:
-
-- Understanding how resources are connected
-- Creating a starting CloudFormation or SAM template
-- Visualizing existing templates
-- Explaining architecture to others
-- Reducing YAML/JSON authoring friction
-- Learning CloudFormation resource relationships
-- Building serverless application templates faster
-
-However, it does not remove the need to understand CloudFormation.
-
-Brutal truth:
-
-> Composer can draw the boxes and generate some template structure, but it cannot make bad architecture good. You still need to understand networking, IAM, security, cost, availability, and CloudFormation behavior.
-
----
-
-## 4. Relationship with CloudFormation
-
-CloudFormation is the core AWS Infrastructure as Code service. It creates, updates, and deletes AWS resources using templates.
-
-Infrastructure Composer sits above CloudFormation.
+You will build a small serverless order-processing architecture:
 
 ```text
-Infrastructure Composer
-        |
-        v
-CloudFormation / SAM template
-        |
-        v
-CloudFormation stack deployment
-        |
-        v
-AWS resources
+Client
+  |
+  v
+API Gateway HTTP API
+  |
+  v
+Lambda Function
+  |
+  v
+DynamoDB Orders Table
 ```
 
-Composer produces or edits the template. CloudFormation manages the actual stack lifecycle.
+By the end of this lab, you should understand:
 
-### Key distinction
-
-| Area | CloudFormation | Infrastructure Composer |
-|---|---|---|
-| Main purpose | Deploy and manage infrastructure | Visually create and edit IaC templates |
-| Type | Infrastructure as Code service | Visual design/editor tool |
-| Input | YAML/JSON template | Visual canvas or existing template |
-| Output | AWS resources | CloudFormation/SAM template |
-| Manages stacks | Yes | No, not by itself |
-| Used in CI/CD | Yes | Usually indirectly |
-| Best for | Repeatable deployments | Visualization and template authoring |
+- What AWS Infrastructure Composer is used for
+- How visual design becomes Infrastructure as Code
+- How Composer relates to CloudFormation and SAM
+- How to export a generated template
+- How to deploy the generated template
+- How to verify the deployed resources
+- How to clean up the stack
+- Where Composer is useful and where it is not enough
 
 ---
 
-## 5. Relationship with AWS SAM
+## Important Idea
 
-AWS SAM stands for AWS Serverless Application Model.
+AWS Infrastructure Composer is not a separate deployment engine.
 
-SAM is an extension of CloudFormation for serverless applications. It provides shorter syntax for resources like Lambda, API Gateway, DynamoDB event sources, and serverless workflows.
+It is a visual tool that helps you create or edit infrastructure templates.
 
-Infrastructure Composer can work with both:
+The actual deployment still happens through:
 
-- Standard CloudFormation templates
-- AWS SAM templates
+- AWS CloudFormation
+- AWS SAM CLI
+- AWS CLI
+- CI/CD pipeline
+- CDK workflow, if you later migrate or rebuild the design in CDK
 
-This is why Composer is especially useful for serverless architectures.
+Think of it like this:
 
-Example SAM resource type:
-
-```yaml
-Type: AWS::Serverless::Function
+```text
+Infrastructure Composer = visual designer
+CloudFormation/SAM template = generated IaC output
+CloudFormation/SAM CLI = deployment mechanism
 ```
-
-Example raw CloudFormation Lambda resource type:
-
-```yaml
-Type: AWS::Lambda::Function
-```
-
-The SAM version is shorter. During deployment, SAM transforms the template into standard CloudFormation resources.
 
 ---
 
-## 6. Relationship with AWS CDK
+## Architecture
 
-AWS CDK is a code-first Infrastructure as Code framework. You write infrastructure using programming languages like TypeScript, Python, Java, C#, or Go. CDK then synthesizes CloudFormation templates.
+```text
++----------------+
+|    Client      |
++--------+-------+
+         |
+         | HTTPS request
+         v
++------------------------+
+| API Gateway HTTP API   |
++--------+---------------+
+         |
+         | invokes
+         v
++------------------------+
+| Lambda Function        |
+| CreateOrderFunction    |
++--------+---------------+
+         |
+         | PutItem
+         v
++------------------------+
+| DynamoDB Table         |
+| OrdersTable            |
++------------------------+
+```
 
-Infrastructure Composer is visual-first. CDK is code-first.
+This is a realistic beginner architecture because many production serverless backends start with the same pattern:
 
-| Area | Infrastructure Composer | AWS CDK |
-|---|---|---|
-| Style | Visual canvas | Programming language |
-| Output | CloudFormation/SAM template | CloudFormation template |
-| Best for | Learning, visualization, quick prototypes | Production-grade reusable IaC |
-| Reusability | Limited | Strong through constructs/classes |
-| Good for complex platforms | Limited | Much better |
-| Learning curve | Lower | Higher |
-
-For a serious developer or architect, CDK usually matters more long term. Composer is still useful because it helps you understand the resource relationships visually.
+```text
+API -> Lambda -> DynamoDB
+```
 
 ---
 
-## 7. Where Infrastructure Composer can be used
+## Services Used
 
-Infrastructure Composer can be used from different places:
-
-| Location | Use case |
+| Service | Purpose |
 |---|---|
-| AWS Infrastructure Composer console | Visual design in the AWS console |
-| CloudFormation console mode | Visualize and edit templates from CloudFormation |
-| AWS Toolkit for Visual Studio Code | Local template editing and visualization |
-| Local sync mode | Keep visual changes synchronized with local template files |
-
-The Visual Studio Code integration is important for real development because templates should normally live in Git, not only in the AWS console.
-
----
-
-## 8. What Infrastructure Composer can do
-
-Infrastructure Composer can help you:
-
-- Create a new CloudFormation or SAM template visually
-- Import an existing template and display it as a diagram
-- Add resources using a visual canvas
-- Configure resource properties
-- Connect supported resources together
-- Generate YAML-based IaC templates
-- Keep a visual diagram and template synchronized
-- Improve understanding of resource dependencies
-- Accelerate serverless template authoring
-
-It is especially strong for common serverless services such as:
-
-- AWS Lambda
-- Amazon API Gateway
-- Amazon EventBridge
-- Amazon SQS
-- AWS Step Functions
-- Amazon DynamoDB
-
-It can also work with CloudFormation-supported resources more broadly, but the visual experience is usually best for commonly used modern/serverless services.
+| AWS Infrastructure Composer | Visual design tool for creating the template |
+| AWS CloudFormation | Deploys the infrastructure as a stack |
+| AWS SAM | Simplifies serverless resources and deployment |
+| API Gateway HTTP API | Public API endpoint |
+| AWS Lambda | Runs backend business logic |
+| DynamoDB | Stores order data |
+| IAM | Grants Lambda permission to write to DynamoDB |
+| CloudWatch Logs | Stores Lambda logs |
 
 ---
 
-## 9. What Infrastructure Composer does not do
+## Prerequisites
 
-Infrastructure Composer does not magically solve infrastructure design.
+You need:
 
-It does not replace:
+- AWS account
+- IAM permissions to create CloudFormation stacks, Lambda, API Gateway, DynamoDB, IAM roles, and CloudWatch Logs
+- AWS CLI configured
+- SAM CLI installed if you deploy using SAM
+- Basic understanding of CloudFormation templates
 
-- CloudFormation knowledge
-- IAM knowledge
-- Networking knowledge
-- Security design
-- Cost optimization
-- Change Sets
-- Drift Detection
-- Stack Policies
-- DeletionPolicy
-- Backups
-- CI/CD
-- Git review process
-- Environment promotion strategy
+Check AWS CLI:
 
-It also does not remove the need to manually review generated templates.
-
-A visual diagram can look clean while the generated infrastructure still has bad IAM permissions, missing retention policies, weak security boundaries, or expensive resources.
-
----
-
-## 10. Typical conceptual workflow
-
-A safe theoretical workflow looks like this:
-
-```text
-Design visually in Infrastructure Composer
-        |
-        v
-Review generated CloudFormation/SAM template
-        |
-        v
-Commit template to Git
-        |
-        v
-Review through pull request
-        |
-        v
-Validate template
-        |
-        v
-Create CloudFormation Change Set
-        |
-        v
-Review deployment impact
-        |
-        v
-Deploy through controlled pipeline
+```bash
+aws --version
+aws sts get-caller-identity
 ```
 
-The important lesson is that Composer should not become a shortcut around review and governance.
+Check SAM CLI:
 
-For production systems, the generated template should be treated like source code.
+```bash
+sam --version
+```
 
 ---
 
-## 11. Important CloudFormation concepts you still need
+## Lab Flow
 
-Even when using Infrastructure Composer, you still need to understand the following CloudFormation concepts.
+```text
+Step 1: Open Infrastructure Composer
+Step 2: Create a new project
+Step 3: Add API Gateway
+Step 4: Add Lambda
+Step 5: Add DynamoDB
+Step 6: Connect resources visually
+Step 7: Review generated template
+Step 8: Export template
+Step 9: Add Lambda code
+Step 10: Build and deploy
+Step 11: Test API
+Step 12: Inspect stack and resources
+Step 13: Clean up
+```
 
-### Resources
+---
 
-The `Resources` section defines the AWS resources that CloudFormation creates.
+# Step 1: Open AWS Infrastructure Composer
 
-Example:
+You can access Infrastructure Composer in different ways:
+
+1. AWS Infrastructure Composer console
+2. CloudFormation console mode
+3. AWS Toolkit for Visual Studio Code
+
+For this lab, use the **AWS Console**.
+
+Go to:
+
+```text
+AWS Console -> Infrastructure Composer
+```
+
+Or from CloudFormation:
+
+```text
+AWS Console -> CloudFormation -> Infrastructure Composer
+```
+<img width="834" height="428" alt="image" src="https://github.com/user-attachments/assets/b5b2eba1-99ca-455b-ba80-7464f1ea5820" />
+
+---
+
+# Step 2: Create a New Project
+
+Choose:
+
+```text
+Create project
+```
+<img width="826" height="328" alt="image" src="https://github.com/user-attachments/assets/833d6235-2d1d-4ced-9dc3-e172f98901ad" />
+
+Select a blank canvas.
+
+Use YAML as the template format if asked.
+
+Recommended project name:
+
+```text
+composer-order-api-lab
+```
+
+---
+
+# Step 3: Add API Gateway
+
+From the resource palette, search for:
+
+```text
+API Gateway
+```
+
+Choose an HTTP API or Serverless API card, depending on what the Composer UI shows.
+
+Drag it onto the canvas.
+
+Rename it to:
+
+```text
+OrderApi
+```
+<img width="836" height="561" alt="image" src="https://github.com/user-attachments/assets/3f2d4121-9ed0-4880-8e91-c802fa58cad2" />
+
+Conceptually, this resource represents the public entry point into your backend.
+
+---
+
+# Step 4: Add Lambda Function
+
+Search for:
+
+```text
+Lambda Function
+```
+
+Drag it onto the canvas.
+
+Rename it to:
+
+```text
+CreateOrderFunction
+```
+
+Suggested configuration:
+
+```text
+Runtime: Python 3.12
+Handler: app.lambda_handler
+Memory: 128 MB
+Timeout: 10 seconds
+```
+
+This Lambda function will receive an HTTP request and write an order item to DynamoDB.
+<img width="970" height="562" alt="image" src="https://github.com/user-attachments/assets/b0cb2c12-3eb0-4bf4-9568-31c5603f7719" />
+
+---
+
+# Step 5: Add DynamoDB Table
+
+Search for:
+
+```text
+DynamoDB Table
+```
+
+Drag it onto the canvas.
+
+Rename it to:
+
+```text
+OrdersTable
+```
+
+Suggested table configuration:
+
+```text
+Partition key: orderId
+Partition key type: String
+Billing mode: PAY_PER_REQUEST
+```
+<img width="1141" height="569" alt="image" src="https://github.com/user-attachments/assets/ca160aa7-ec33-4c27-9620-acc44370c576" />
+
+For a lab, on-demand billing is easier because you do not need to configure read/write capacity.
+
+---
+
+# Step 6: Connect the Resources
+
+Now connect the resources visually:
+
+```text
+API Gateway -> Lambda Function -> DynamoDB Table
+```
+
+<img width="954" height="458" alt="image" src="https://github.com/user-attachments/assets/93a45960-6ddb-4d32-9e13-c117725e6ddb" />
+
+The exact drag/connect behavior depends on the Composer mode and resource card.
+
+The important result is:
+
+1. API Gateway can invoke Lambda
+2. Lambda has permission to write to DynamoDB
+3. Lambda receives the table name as an environment variable
+
+After connecting resources, inspect the generated template to see what Composer created.
+
+---
+
+# Step 7: Review the Generated Template
+
+Switch from visual/canvas view to template view.
+
+You should see a CloudFormation or SAM template.
+
+A serverless SAM-style template may look similar to this:
 
 ```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Order API created using AWS Infrastructure Composer
+
 Resources:
   OrdersTable:
     Type: AWS::DynamoDB::Table
     Properties:
       BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: orderId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: orderId
+          KeyType: HASH
+
+  CreateOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.12
+      Handler: app.lambda_handler
+      CodeUri: src/create-order/
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          ORDERS_TABLE_NAME: !Ref OrdersTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrdersTable
+      Events:
+        CreateOrderApi:
+          Type: HttpApi
+          Properties:
+            Path: /orders
+            Method: POST
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/orders"
+```
+<img width="881" height="555" alt="image" src="https://github.com/user-attachments/assets/94238f62-13f4-4f99-9ded-ac6b80ce639b" />
+
+Your generated template may not look exactly the same. That is fine.
+
+The key things to check are:
+
+- Does the template contain an API resource?
+- Does the template contain a Lambda function?
+- Does the template contain a DynamoDB table?
+- Does Lambda have permission to write to the table?
+- Does Lambda know the table name?
+- Is there an API route that invokes the function?
+
+---
+
+# Step 8: Export the Template
+
+Export the generated template to your local machine.
+
+Recommended folder structure:
+
+```text
+composer-order-api-lab/
+  template.yaml
+  src/
+    create-order/
+      app.py
+  README.md
 ```
 
-This is the only required section in a CloudFormation template.
+If you use local sync, Composer can keep the local template synchronized while you edit visually.
+<img width="1138" height="428" alt="image" src="https://github.com/user-attachments/assets/6ce30531-e06b-4270-9fdf-eb5839ccdf5c" />
 
-### Parameters
 
-Parameters allow the same template to be reused with different values.
+If you export manually, download the template and place it in the project folder as:
 
-Example use cases:
+```text
+template.yaml
+```
 
-- Environment name
-- Instance type
-- VPC ID
-- Subnet IDs
-- Allowed CIDR range
+---
 
-Conceptual example:
+# Step 9: Add Lambda Code
+
+Create this folder:
+
+```bash
+mkdir -p src/create-order
+```
+
+Create file:
+
+```text
+src/create-order/app.py
+```
+
+Add this code:
+
+```python
+import json
+import os
+import uuid
+from datetime import datetime, timezone
+
+import boto3
+
+
+dynamodb = boto3.resource("dynamodb")
+orders_table = dynamodb.Table(os.environ["ORDERS_TABLE_NAME"])
+
+
+def lambda_handler(event, context):
+    try:
+        body = json.loads(event.get("body") or "{}")
+
+        customer_id = body.get("customerId")
+        product_id = body.get("productId")
+        quantity = body.get("quantity", 1)
+
+        if not customer_id or not product_id:
+            return response(400, {
+                "message": "customerId and productId are required"
+            })
+
+        order = {
+            "orderId": str(uuid.uuid4()),
+            "customerId": customer_id,
+            "productId": product_id,
+            "quantity": int(quantity),
+            "status": "CREATED",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
+
+        orders_table.put_item(Item=order)
+
+        return response(201, order)
+
+    except Exception as ex:
+        print(f"Error creating order: {ex}")
+        return response(500, {
+            "message": "Internal server error"
+        })
+
+
+def response(status_code, body):
+    return {
+        "statusCode": status_code,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": json.dumps(body)
+    }
+```
+
+---
+
+# Step 10: Build the Application
+
+From the project root:
+
+```bash
+sam build
+```
+
+Expected result:
+
+```text
+Build Succeeded
+```
+
+If SAM complains about `CodeUri`, check that your template points to:
 
 ```yaml
-Parameters:
-  EnvironmentName:
-    Type: String
-    AllowedValues:
-      - dev
-      - test
-      - prod
+CodeUri: src/create-order/
 ```
 
-### Outputs
+---
 
-Outputs expose useful values after stack creation.
+# Step 11: Deploy the Stack
 
-Examples:
+Run:
 
-- API endpoint URL
-- Load balancer DNS name
-- DynamoDB table name
-- VPC ID
-- SQS queue URL
+```bash
+sam deploy --guided
+```
 
-### Mappings
+Suggested answers:
 
-Mappings are static lookup tables inside the template.
+```text
+Stack Name: composer-order-api-lab
+AWS Region: eu-north-1
+Confirm changes before deploy: Y
+Allow SAM CLI IAM role creation: Y
+Disable rollback: N
+Save arguments to samconfig.toml: Y
+```
 
-Example use cases:
+SAM will package and deploy the CloudFormation stack.
 
-- Region-specific AMI IDs
-- Environment-specific instance sizes
-- Region-specific configuration values
-
-### Conditions
-
-Conditions decide whether a resource or property should be created or configured.
-
-Example use cases:
-
-- Create expensive resources only in production
-- Enable alarms only in production
-- Create a bastion host only in development
-
-### Intrinsic functions
-
-Intrinsic functions are used to reference and combine values inside templates.
-
-Common examples:
-
-| Function | Purpose |
-|---|---|
-| `!Ref` | Reference parameter or resource value |
-| `!GetAtt` | Get an attribute from a resource |
-| `!Sub` | String substitution |
-| `!Join` | Join values into a string |
-| `!FindInMap` | Look up values from mappings |
-| `!If` | Conditional value selection |
-
-Infrastructure Composer may generate these, but you need to understand what they mean.
+After deployment, copy the API endpoint from the stack outputs.
 
 ---
 
-## 12. Infrastructure Composer and Change Sets
+# Step 12: Test the API
 
-A Change Set is a CloudFormation feature that shows what will happen before a stack update is executed.
+Use curl:
 
-This matters because a small visual change in Composer can still cause a major infrastructure change.
+```bash
+curl -X POST "https://YOUR_API_ID.execute-api.eu-north-1.amazonaws.com/orders" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": "customer-123",
+    "productId": "product-456",
+    "quantity": 2
+  }'
+```
 
-Examples of dangerous update effects:
-
-- A database may be replaced
-- A table may be recreated
-- A security group may be modified
-- A Lambda role may lose permissions
-- A queue may be replaced because of a name change
-- A load balancer listener may be changed
-
-Composer helps edit the template. Change Sets help understand the deployment impact.
-
-Exam memory:
-
-> Use Change Sets when you need to preview CloudFormation stack changes before applying them.
-
----
-
-## 13. Infrastructure Composer and Drift Detection
-
-Drift Detection is a CloudFormation feature that detects whether resources have changed outside CloudFormation.
-
-Example:
-
-A developer manually changes a security group rule in the AWS console. CloudFormation no longer matches the actual resource state. That is drift.
-
-Composer may help visualize templates, but it is not the main drift control feature. Drift Detection belongs to CloudFormation.
-
-Exam memory:
-
-> Use Drift Detection when you need to identify manual changes made outside CloudFormation.
-
----
-
-## 14. Infrastructure Composer and Stack Policies
-
-Stack Policies protect stack resources from unwanted updates.
-
-They are useful for critical resources such as:
-
-- RDS databases
-- DynamoDB tables
-- S3 buckets
-- Production security groups
-- Production IAM roles
-
-Example concept:
+Expected response:
 
 ```json
 {
-  "Statement": [
-    {
-      "Effect": "Deny",
-      "Action": "Update:*",
-      "Principal": "*",
-      "Resource": "LogicalResourceId/ProductionDatabase"
-    }
-  ]
+  "orderId": "generated-guid",
+  "customerId": "customer-123",
+  "productId": "product-456",
+  "quantity": 2,
+  "status": "CREATED",
+  "createdAt": "2026-05-17T...Z"
 }
 ```
 
-This is not an IAM policy. It is a CloudFormation stack policy.
-
-Difference:
-
-| Policy type | Protects against |
-|---|---|
-| IAM policy | Who can call AWS APIs |
-| Stack policy | Which stack resources CloudFormation can update |
-
-Composer does not replace stack policies. For important stateful resources, stack policies are still valuable.
-
 ---
 
-## 15. Infrastructure Composer and DeletionPolicy
+# Step 13: Verify DynamoDB
 
-`DeletionPolicy` controls what happens to a resource when the stack is deleted or when the resource is removed from the template.
+Go to:
 
-Important values:
-
-| Value | Meaning |
-|---|---|
-| `Delete` | Delete the resource |
-| `Retain` | Keep the resource even if stack is deleted |
-| `Snapshot` | Create a snapshot before deletion, where supported |
-
-For stateful resources, `Retain` or `Snapshot` is often safer than the default delete behavior.
-
-Example:
-
-```yaml
-OrdersTable:
-  Type: AWS::DynamoDB::Table
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
-  Properties:
-    BillingMode: PAY_PER_REQUEST
+```text
+AWS Console -> DynamoDB -> Tables -> OrdersTable
 ```
 
-Important distinction:
+Open table items.
 
-| Feature | Purpose |
+You should see the order inserted by the Lambda function.
+
+You can also use AWS CLI:
+
+```bash
+aws dynamodb scan \
+  --table-name YOUR_TABLE_NAME \
+  --region eu-north-1
+```
+
+The physical table name may be different from `OrdersTable` because CloudFormation may generate a unique name.
+
+You can find the table name in:
+
+```text
+CloudFormation -> Stack -> Resources
+```
+
+---
+
+# Step 14: Check Lambda Logs
+
+Go to:
+
+```text
+CloudWatch -> Log groups
+```
+
+Find the log group for the Lambda function.
+
+It will look similar to:
+
+```text
+/aws/lambda/composer-order-api-lab-CreateOrderFunction-xxxx
+```
+
+Invoke the API again and confirm logs are created.
+
+---
+
+# Step 15: Inspect the CloudFormation Stack
+
+Go to:
+
+```text
+CloudFormation -> Stacks -> composer-order-api-lab
+```
+
+Inspect these tabs:
+
+| Tab | What to check |
 |---|---|
-| Stack Policy | Protects resources from stack updates |
-| DeletionPolicy | Controls what happens during stack deletion/removal |
-| UpdateReplacePolicy | Controls what happens when replacement is required |
+| Events | Resource creation order and errors |
+| Resources | Physical resources created by the stack |
+| Outputs | API endpoint |
+| Template | Final deployed template |
+| Parameters | Input values if any |
+
+This is important because Composer creates the template, but CloudFormation manages the actual deployed stack.
 
 ---
 
-## 16. Infrastructure Composer and IAM
+# Step 16: Clean Up
 
-IAM is one of the biggest areas where generated templates must be reviewed carefully.
+To delete the stack:
 
-Composer can help create resource relationships, but you must verify that the generated or edited permissions are safe.
-
-Bad permission pattern:
-
-```yaml
-Action: '*'
-Resource: '*'
+```bash
+sam delete --stack-name composer-order-api-lab --region eu-north-1
 ```
 
-Better pattern:
+Or use CloudFormation:
 
-```yaml
-Action:
-  - dynamodb:GetItem
-  - dynamodb:PutItem
-Resource: !GetAtt OrdersTable.Arn
+```bash
+aws cloudformation delete-stack \
+  --stack-name composer-order-api-lab \
+  --region eu-north-1
 ```
 
-Real-world rule:
+Check that the stack is deleted:
 
-> Never assume generated IAM is production-safe. Review actions, resources, principals, and trust policies.
-
----
-
-## 17. Infrastructure Composer and resource dependencies
-
-CloudFormation automatically understands many dependencies through references.
-
-For example:
-
-```yaml
-Environment:
-  Variables:
-    TABLE_NAME: !Ref OrdersTable
+```bash
+aws cloudformation describe-stacks \
+  --stack-name composer-order-api-lab \
+  --region eu-north-1
 ```
 
-Because the Lambda function references the DynamoDB table, CloudFormation knows the table must exist before the function can fully use that reference.
-
-Sometimes explicit dependencies are still needed using `DependsOn`, but many dependencies are inferred by references like `!Ref` and `!GetAtt`.
-
-Infrastructure Composer can make relationships easier to see visually, but CloudFormation dependency behavior still matters.
+If the stack no longer exists, cleanup is complete.
 
 ---
 
-## 18. Infrastructure Composer and generated templates
+## What You Learned
 
-Generated templates should be reviewed for:
+You used AWS Infrastructure Composer to:
 
-- Hardcoded names
-- Missing parameters
-- Missing outputs
-- Overly broad IAM permissions
-- Missing tags
-- Missing retention policies
-- Missing encryption settings
-- Missing logging configuration
-- Public access settings
-- Replacement risk
-- Environment-specific values
-- Cost-sensitive resources
-
-A generated template is a starting point, not automatically a production-ready template.
+- Visually design a serverless architecture
+- Generate an IaC template
+- Understand the generated CloudFormation/SAM resources
+- Export the template
+- Add Lambda code
+- Deploy using SAM/CloudFormation
+- Test an API Gateway endpoint
+- Verify DynamoDB data
+- Inspect CloudWatch logs
+- Delete the stack
 
 ---
 
-## 19. Good use cases
+## Exam-Relevant Lessons
 
-Infrastructure Composer is good when:
+For SAA-C03, remember:
 
-- You are learning CloudFormation
-- You are learning serverless architecture
-- You want to visualize an existing template
-- You want to explain resource relationships
-- You want a starting point for a template
-- You are creating a small proof of concept
-- You are reviewing how services connect
-- You want to reduce manual YAML writing
-
----
-
-## 20. Weak use cases
-
-Infrastructure Composer is not ideal when:
-
-- You are building a large multi-account platform
-- You need reusable infrastructure modules
-- You need advanced abstraction and composition
-- You need loops and programming logic
-- You need strict production governance
-- You need complex environment promotion
-- You need deep customization
-
-For these cases, CDK, Terraform, or well-structured CloudFormation/SAM templates are usually stronger.
+1. Infrastructure Composer is a visual IaC design tool.
+2. It creates CloudFormation or SAM templates.
+3. It does not replace CloudFormation.
+4. CloudFormation still deploys and manages the stack.
+5. SAM is useful for serverless applications.
+6. Composer can help visualize resource relationships.
+7. Templates can be exported and used in CI/CD.
+8. Composer is useful for learning, prototyping, and visual editing.
+9. For complex production systems, CDK or hand-written CloudFormation may be cleaner.
+10. Lambda-related resources may still need packaging/build steps outside Composer.
 
 ---
 
-## 21. Comparison with CloudFormation Designer
+## Common Mistakes
 
-CloudFormation Designer was the older visual template design tool.
+### Mistake 1: Thinking Composer deploys everything by itself
 
-Infrastructure Composer is the newer and more modern visual experience.
+Composer creates or edits the template.
 
-| Area | CloudFormation Designer | Infrastructure Composer |
-|---|---|---|
-| Age | Older | Newer |
-| Focus | Generic CloudFormation visual design | Modern application and infrastructure composition |
-| Serverless experience | Limited | Stronger |
-| Console experience | Older | Better modern canvas |
-| Local workflow | Limited | Better with VS Code integration |
-
-For new learning, focus on Infrastructure Composer.
+Deployment still happens through CloudFormation, SAM, or another deployment workflow.
 
 ---
 
-## 22. Exam-focused summary
+### Mistake 2: Ignoring the generated template
 
-For AWS SAA-C03, you do not need deep operational expertise in Infrastructure Composer, but you should know where it fits.
+Do not only look at the visual diagram.
 
-Remember this mapping:
+Always inspect the generated template because that is the real infrastructure definition.
 
-| Requirement | AWS feature/service |
+---
+
+### Mistake 3: Forgetting Lambda code packaging
+
+Composer can define Lambda resources, but your Lambda code still needs to exist, be packaged, and be deployed correctly.
+
+For SAM, this is usually handled by:
+
+```bash
+sam build
+sam deploy
+```
+
+---
+
+### Mistake 4: Not checking IAM permissions
+
+Your Lambda needs permission to write to DynamoDB.
+
+In SAM, this can be simplified using:
+
+```yaml
+Policies:
+  - DynamoDBCrudPolicy:
+      TableName: !Ref OrdersTable
+```
+
+In raw CloudFormation, you may need to explicitly define IAM roles and policies.
+
+---
+
+### Mistake 5: Treating Composer as a replacement for CDK
+
+Composer is good for visualization and template generation.
+
+CDK is better when you want reusable code, constructs, environment-specific configuration, and serious application infrastructure structure.
+
+---
+
+## Composer vs CloudFormation vs SAM vs CDK
+
+| Tool | Best For |
 |---|---|
-| Repeatable infrastructure deployment | CloudFormation |
-| Same stack across accounts and regions | StackSets |
-| Visual CloudFormation/SAM template creation | Infrastructure Composer |
-| Preview stack update impact | Change Sets |
-| Detect manual changes | Drift Detection |
-| Protect resources from stack updates | Stack Policies |
-| Protect stateful resources from deletion | DeletionPolicy / UpdateReplacePolicy |
-| Serverless template abstraction | AWS SAM |
-| Code-first IaC | AWS CDK |
+| Infrastructure Composer | Visual design and learning resource relationships |
+| CloudFormation | Native AWS IaC deployment engine |
+| SAM | Serverless applications built on CloudFormation |
+| CDK | Writing infrastructure using programming languages |
 
-Most likely exam angle:
+Simple rule:
 
-> If the question says visual design, visual composition, or visually creating CloudFormation/SAM templates, think Infrastructure Composer.
-
-But if the question says repeatable deployment, stack updates, rollback, drift, change preview, or multi-account deployment, think CloudFormation features.
+```text
+Use Composer to understand and draft.
+Use CloudFormation/SAM to deploy.
+Use CDK for serious reusable infrastructure code.
+```
 
 ---
 
-## 23. Common questions
+## Optional Extension Ideas
 
-### Is Infrastructure Composer the same as CloudFormation?
+After the basic lab works, extend it with:
 
-No. CloudFormation is the IaC deployment service. Infrastructure Composer is a visual tool for creating and editing CloudFormation/SAM templates.
-
-### Does Infrastructure Composer replace CloudFormation?
-
-No. It depends on CloudFormation templates and CloudFormation stack deployment.
-
-### Does Infrastructure Composer replace CDK?
-
-No. CDK is better for reusable, code-first, production-grade infrastructure patterns. Composer is better for visualization, learning, and template authoring.
-
-### Can Infrastructure Composer work with existing templates?
-
-Yes. Existing CloudFormation and SAM templates can be loaded and visualized.
-
-### Is Infrastructure Composer only for serverless?
-
-No. It can work with CloudFormation-supported resources, but the experience is especially strong for common serverless services.
-
-### Should production infrastructure be edited directly in the console?
-
-Usually no. Production templates should be stored in Git, reviewed, validated, and deployed through a controlled pipeline.
-
-### Do I still need to learn YAML if I use Composer?
-
-Yes. You need to understand the generated template because production issues are debugged at the CloudFormation/template level, not just at the visual canvas level.
+1. Add a GET /orders/{orderId} Lambda
+2. Add request validation
+3. Add structured JSON logging
+4. Add CloudWatch alarms
+5. Add X-Ray tracing
+6. Add SQS after order creation
+7. Add EventBridge order-created event
+8. Add Cognito authorizer
+9. Add WAF in front of API Gateway
+10. Rebuild the same architecture manually in CDK
 
 ---
 
-## 24. Final takeaways
+## Final Takeaway
 
-- AWS Infrastructure Composer is a visual tool for CloudFormation and SAM templates.
-- It was formerly called AWS Application Composer.
-- It helps you visually create, understand, and edit infrastructure templates.
-- It is not a replacement for CloudFormation.
-- It is not a replacement for CDK.
-- It is most useful for learning, visualization, serverless designs, and template starting points.
-- Serious production use still needs Git, review, validation, Change Sets, CI/CD, and CloudFormation knowledge.
-- Always review generated templates manually.
-- Always pay special attention to IAM, stateful resources, deletion behavior, replacement behavior, and cost.
+Infrastructure Composer is excellent for seeing how AWS services connect and for generating a starting CloudFormation or SAM template.
 
----
+But the real skill is not just dragging boxes on a canvas.
 
-## References
+The real skill is understanding what template was generated, what IAM permissions were created, how the stack is deployed, how the resources behave, and how to troubleshoot when CloudFormation fails.
 
-- AWS Infrastructure Composer documentation
-- AWS CloudFormation documentation
-- AWS Serverless Application Model documentation
+For your learning path, the best use of Composer is:
+
+```text
+Visualize -> Generate template -> Read template -> Deploy -> Break/fix -> Rebuild manually in CDK
+```
