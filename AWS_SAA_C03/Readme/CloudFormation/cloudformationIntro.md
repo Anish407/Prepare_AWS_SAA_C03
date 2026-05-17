@@ -1,7 +1,7 @@
 # AWS CloudFormation - SAA-C03 Exam Notes and Practical Examples
 
 ## Labs
-- [Using the Infrastructure composer](./infracomposer.md)
+- [Cloudformation Infra Composer](./infracomposer.md)
 
 
 
