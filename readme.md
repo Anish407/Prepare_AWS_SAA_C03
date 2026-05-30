@@ -11,6 +11,10 @@
 - [9. Lambdas](AWS_SAA_C03/Readme/Lambdas/lambdasIntro.md)
 - [10. ACM (certificate manager)](AWS_SAA_C03/Readme/ACM/acmintro.md)
 - [11. CloudFormation](AWS_SAA_C03/Readme/CloudFormation/cloudformationIntro.md)
+
+
+- Other Labs
+    - [Updating SSM agent in a private EC2 using Systems Manager Run Command](./AWS_SAA_C03/Readme/OtherLabs/SystemsManagerRunCommand.md)
   
 
 
