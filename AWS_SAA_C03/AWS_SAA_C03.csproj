@@ -24,6 +24,7 @@
     <Folder Include="Readme\cloudfront\" />
     <Folder Include="Readme\Lambdas\" />
     <Folder Include="Readme\CloudFormation\" />
+    <Folder Include="Readme\OtherLabs\" />
     <Folder Include="Readme\VPCs\VPCEndpoints\" />
     <Folder Include="Readme\VPCs\PrivateSubnets\" />
   </ItemGroup>
