@@ -408,12 +408,21 @@ Search for:
 ```text
 AWS-UpdateSSMAgent
 ```
+ <img width="923" height="376" alt="image" src="https://github.com/user-attachments/assets/87534500-c5ed-4cf4-8d28-52855dec013d" />
 
 Select the private EC2 instance.
+ <img width="912" height="380" alt="image" src="https://github.com/user-attachments/assets/9bdbea60-56dd-450a-84ca-246cd82e930f" />
+
 
 Run the command.
 
+<img width="794" height="361" alt="image" src="https://github.com/user-attachments/assets/c0d3a0cd-ecd3-437c-92b9-6e7194b306c2" />
+
+
 Then check:
+
+<img width="934" height="308" alt="image" src="https://github.com/user-attachments/assets/64ad78fb-de15-4e2c-a5b7-6df9184be7fb" />
+
 
 ```text
 Systems Manager → Run Command → Command history
@@ -421,31 +430,36 @@ Systems Manager → Run Command → Command history
 
 To verify the version, run another command using:
 
-```text
-AWS-RunShellScript
-```
-
 Command:
 
 ```bash
 amazon-ssm-agent -version
 ```
 
+<img width="310" height="158" alt="image" src="https://github.com/user-attachments/assets/641907cd-7cb3-422d-9e2c-be615470bf54" />
+
 ---
+
+## Command Failed
+
+<img width="798" height="188" alt="image" src="https://github.com/user-attachments/assets/cc4512e2-a0c2-4d7b-b53f-1dad1f5f591b" />
+<img width="725" height="262" alt="image" src="https://github.com/user-attachments/assets/43d14fad-189a-4bd6-a3c5-501388eb5a86" />
+EC2 can reach the SSM control-plane endpoints, but the agent update package/manifest is being fetched from S3, and your private subnet has no S3 path. Since the EC2 instance is in a private subnet with no NAT Gateway, the SSM Agent update fails because it tries to download the update manifest from an AWS-managed S3 bucket.
+
+when the update actually ran, the agent tried to download this file
+
+```https://s3.us-east-1.amazonaws.com/amazon-ssm-us-east-1/ssm-agent-manifest.json```
+
+#### Fix
+We add an S3 gateway endpoint , so that the SSM Agent on the EC2 instance that could not communicate with the S3 bucket.
+ <img width="929" height="261" alt="image" src="https://github.com/user-attachments/assets/da3e680a-c54b-435a-92aa-67d4f980ca6f" />
+ <img width="946" height="277" alt="image" src="https://github.com/user-attachments/assets/125bd34f-628c-47f6-9b18-263584b38801" />
+
+Check previous labs to find out how to add an s3 gateway endpoint in detail.
 
 ## 21. Step 11: Verify SSM Agent Version After Update
 
 Run:
-
-- Get the output:
-
-```bash
-aws ssm get-command-invocation \
-  --command-id $COMMAND_ID \
-  --instance-id $INSTANCE_ID \
-  --query "StandardOutputContent" \
-  --output text
-```
 
 Compare the version before and after the update.
 
