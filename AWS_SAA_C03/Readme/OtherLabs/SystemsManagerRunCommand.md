@@ -4,6 +4,9 @@
 
 The goal of this lab is to update the **AWS Systems Manager Agent (SSM Agent)** on an EC2 instance that is running in a **private subnet**, without using SSH, without a public IP address, and without a NAT Gateway.
 
+<img width="1672" height="941" alt="image" src="https://github.com/user-attachments/assets/8fb7e775-f52b-4ea7-9ec6-db9d5e1a7f6b" />
+
+
 The EC2 instance will communicate with AWS Systems Manager privately through **VPC Interface Endpoints**.
 
 By the end of this lab, you should understand:
@@ -282,16 +285,28 @@ Only resources using the EC2 security group can connect to the VPC endpoints on 
 ## 15. Step 5: Create VPC Interface Endpoints for Systems Manager
 
 - Create the `ssm` endpoint:
-- Create the `ssmmessages` endpoint:
-- Create the `ec2messages` endpoint:
+  <img width="876" height="383" alt="image" src="https://github.com/user-attachments/assets/4938bdf6-93c2-46d5-a34c-711853d2a465" />
+  <img width="848" height="392" alt="image" src="https://github.com/user-attachments/assets/00dc7185-3ff2-484d-be11-7b77cfc25865" />
+  <img width="925" height="394" alt="image" src="https://github.com/user-attachments/assets/5ce988b2-e666-48c6-9213-365912d825ec" />
 
+- repeat the above steps and create endpoints for   `ssmmessages` and `ec2messages` 
+ 
 Wait until the endpoints are available:
+  <img width="954" height="256" alt="image" src="https://github.com/user-attachments/assets/b9669ab8-600e-46b7-983b-8f8a92763a27" />
 
 Expected state:
 
 ```text
 available
 ```
+## Also Allow the following rules on the security groups
+AWS’s Systems Manager VPC endpoint documentation says the security group attached to the VPC endpoint must allow incoming connections on port 443 from the private subnet of the managed instance; otherwise, the managed instance cannot connect to the SSM/EC2 endpoints.
+
+- Private EC2 SG outbound 443  →  Endpoint SG
+  <img width="842" height="349" alt="image" src="https://github.com/user-attachments/assets/32899583-4002-4153-824f-c1d4cb60229e" />
+
+- Endpoint SG inbound 443      ←  Private EC2 SG
+  <img width="901" height="216" alt="image" src="https://github.com/user-attachments/assets/bfd70d31-8c2a-4f3e-915f-a651e87cf45f" />
 
 ---
 
@@ -323,14 +338,23 @@ Wait a minute for IAM propagation.
 ## 17. Step 7: Launch Private EC2 Instance
 
 - Get the latest Amazon Linux 2023 AMI:
+  <img width="908" height="368" alt="image" src="https://github.com/user-attachments/assets/4d13f5db-e266-4429-9053-49ef0e07f93b" />
+- Place the Ec2 in the VPC and private subnet we created and disable public IPs
+  <img width="922" height="385" alt="image" src="https://github.com/user-attachments/assets/1b0a8f1c-7deb-420c-8599-9a2d111f5f1e" />
+- Select the role we created as the instance profile
+  <img width="609" height="227" alt="image" src="https://github.com/user-attachments/assets/de700e88-3b0e-4850-ae42-53863d0fc630" />
 - Launch the private EC2 instance:
 - Confirm that the instance has no public IP:
+  <img width="464" height="185" alt="image" src="https://github.com/user-attachments/assets/337ed945-20b7-462d-9b29-24777b40fa1a" />
 
 ---
 
 ## 18. Step 8: Verify the Instance Is Online in Systems Manager
 
-If it shows `Online`, the private EC2 instance is successfully communicating with Systems Manager through the interface endpoints.
+- If it shows `Online`, the private EC2 instance is successfully communicating with Systems Manager through the interface endpoints.
+  <img width="934" height="284" alt="image" src="https://github.com/user-attachments/assets/6cae7fd7-0cb3-4db2-a0da-331474cfa755" />
+- Also select the Ec2 instance, choose connect and select SSM Session manager
+  <img width="927" height="341" alt="image" src="https://github.com/user-attachments/assets/a1583627-d1f4-4d74-908a-5f9f601c1552" />
 
 If it does not show up, check:
 
@@ -350,7 +374,10 @@ If it does not show up, check:
 
 ## 19. Step 9: Check Current SSM Agent Version
 
-Use Run Command with `AWS-RunShellScript`:
+Use Run Command with `amazon-ssm-agent -version`:
+
+ <img width="438" height="142" alt="image" src="https://github.com/user-attachments/assets/a5535f73-38b3-45fd-9610-c2ee8ab81475" />
+
 
 Example output:
 
