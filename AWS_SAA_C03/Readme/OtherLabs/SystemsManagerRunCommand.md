@@ -214,16 +214,19 @@ If one of these is missing, the instance may not appear online or Run Command ma
 ## 10. Step 1: Create a VPC
 
 - Create a VPC:
+  <img width="914" height="364" alt="image" src="https://github.com/user-attachments/assets/861bd2d4-8d55-4f14-846f-d8f3566c2edf" />
 
 - Enable DNS support and DNS hostnames:
+  <img width="299" height="350" alt="image" src="https://github.com/user-attachments/assets/93ee39ac-df79-4a3f-9106-eba82d3213ee" />
 
-These DNS settings are important because interface endpoints use private DNS.
+These DNS settings are important because interface endpoints use private DNS. I dont add a public subnet here as its not required for this lab and the EC2 that we will provision will live in the private VPC
 
 ---
 
 ## 12. Step 2: Create a Private Subnet
 
 - Create a private subnet:
+  <img width="167" height="133" alt="image" src="https://github.com/user-attachments/assets/2d18e803-70dc-4a12-b508-4b95fb7b24c0" />
 
 This subnet will not have:
 
@@ -238,7 +241,10 @@ That is intentional.
 ## 13. Step 3: Create Route Table for Private Subnet
 
 - Create a route table:
+  <img width="141" height="129" alt="image" src="https://github.com/user-attachments/assets/9f5426d1-4e58-4119-a06b-c717d2122574" />
+
 - Associate the route table with the private subnet:
+  <img width="935" height="252" alt="image" src="https://github.com/user-attachments/assets/a7203b07-6c53-4cd0-bcc2-109915d1d34a" />
 
 > Do not add a route to an Internet Gateway or NAT Gateway. This confirms that the instance will not have internet access.
 
@@ -256,12 +262,14 @@ You need two security groups:
 ### 14.1 Create EC2 Security Group
 
 - Do not add inbound rules.
+  <img width="892" height="391" alt="image" src="https://github.com/user-attachments/assets/a8812742-be20-4cf9-8198-560c3b037c66" />
 
 - The EC2 instance does not need inbound SSH.
 
 ### 14.2 Create Endpoint Security Group
 
 - Allow HTTPS from the EC2 security group to the endpoint security group:
+  <img width="822" height="296" alt="image" src="https://github.com/user-attachments/assets/fe8950fc-37c8-4235-a623-105f547a7cd8" />
 
 This means:
 
@@ -299,9 +307,15 @@ This role needs two things:
 ```
 
 - The trust policy allows EC2 to assume the role.
+  <img width="889" height="386" alt="image" src="https://github.com/user-attachments/assets/6e60b6b0-0c83-4415-9bb0-e5298a773aa0" />
+  <img width="767" height="342" alt="image" src="https://github.com/user-attachments/assets/49b35e02-85d4-41f3-89ad-869d7331c64d" />
+
 - The permission policy allows the role to communicate with Systems Manager.
 - Attach the AWS managed policy:
-
+  <img width="947" height="301" alt="image" src="https://github.com/user-attachments/assets/c4e3087f-0e6b-4c0c-8f76-1414e5c3bf7c" />
+- Create the role
+  <img width="926" height="395" alt="image" src="https://github.com/user-attachments/assets/aacc7af2-0735-4c88-8095-a0f400e920a4" />
+ 
 Wait a minute for IAM propagation.
 
 ---
