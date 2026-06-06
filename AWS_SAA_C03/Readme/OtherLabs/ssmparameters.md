@@ -317,9 +317,11 @@ aws ssm get-parameters-by-path \
   --recursive \
   --with-decryption \
   --region $AWS_REGION
+  -- profile $AdminProfile
 ```
 
 Expected result: you should see all dev and prod parameters with decrypted SecureString values.
+<img width="857" height="296" alt="image" src="https://github.com/user-attachments/assets/27a8e54b-fc48-4488-9eba-b524b8af150a" />
 
 ---
 
@@ -338,6 +340,7 @@ aws iam create-user --user-name dev-user
 aws iam create-user --user-name prod-user
 aws iam create-user --user-name platform-admin-user
 ```
+<img width="578" height="113" alt="image" src="https://github.com/user-attachments/assets/a822c3d8-3ad7-4ab4-8cde-4ae04b97be53" />
 
 ---
 
@@ -346,10 +349,11 @@ aws iam create-user --user-name platform-admin-user
 Create access keys for each user:
 
 ```bash
-aws iam create-access-key --user-name dev-user
-aws iam create-access-key --user-name prod-user
-aws iam create-access-key --user-name platform-admin-user
+aws iam create-access-key --user-name dev-user --profile $adminUser
+aws iam create-access-key --user-name prod-user  --profile $adminUser
+aws iam create-access-key --user-name platform-admin-user  --profile $adminUser
 ```
+<img width="653" height="52" alt="image" src="https://github.com/user-attachments/assets/b8bdafe8-5aeb-4bd3-a34f-123a62cacb2a" />
 
 Save the returned values:
 
@@ -369,7 +373,8 @@ Configure `dev-user` profile:
 ```bash
 aws configure --profile dev-user
 ```
-
+<img width="635" height="275" alt="image" src="https://github.com/user-attachments/assets/d5924145-4a4f-4a82-b4a1-23406558cd92" />
+Repeat the same process for the other users
 Configure `prod-user` profile:
 
 ```bash
@@ -434,6 +439,7 @@ cat > dev-user-default-ssm-policy.json <<EOF
 }
 EOF
 ```
+<img width="669" height="298" alt="image" src="https://github.com/user-attachments/assets/78dfbc18-90fb-4e53-b62b-26e8bd643f14" />
 
 Create IAM policy:
 
@@ -454,6 +460,8 @@ aws iam attach-user-policy \
   --user-name dev-user \
   --policy-arn "$DEV_USER_POLICY_ARN"
 ```
+or from the console, select the policy and attach
+<img width="721" height="353" alt="image" src="https://github.com/user-attachments/assets/5ba676b1-78f7-4017-83d4-7e97117c00c7" />
 
 ---
 
@@ -528,6 +536,7 @@ aws ssm get-parameter \
 ```
 
 Expected: success.
+<img width="785" height="94" alt="image" src="https://github.com/user-attachments/assets/5410a4fb-b96e-46c5-9c68-318d1f82098f" />
 
 ---
 
@@ -542,6 +551,9 @@ aws ssm get-parameter \
 ```
 
 Expected: failure.
+
+<img width="845" height="76" alt="image" src="https://github.com/user-attachments/assets/5e0b771b-4521-48bc-9fbd-7600313b14b3" />
+
 
 Why?
 
@@ -559,6 +571,7 @@ aws ssm get-parameter \
 ```
 
 Expected: `AccessDeniedException`.
+<img width="719" height="48" alt="image" src="https://github.com/user-attachments/assets/45a90e4b-69ed-41f5-8169-84d7a5fb4fc5" />
 
 ---
 
