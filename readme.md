@@ -15,6 +15,7 @@
 
 - Other Labs
     - [Updating SSM agent in a private EC2 using Systems Manager Run Command](./AWS_SAA_C03/Readme/OtherLabs/SystemsManagerRunCommand.md)
+    - [Managing SSM Parameters using IAM](./AWS_SAA_C03/Readme/OtherLabs/ssmparameters.md)
   
 
 
