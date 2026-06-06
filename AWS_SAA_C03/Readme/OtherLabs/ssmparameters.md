@@ -202,6 +202,7 @@ PROD_KMS_KEY_ARN=$(aws kms describe-key \
 
 echo $PROD_KMS_KEY_ARN
 ```
+<img width="874" height="310" alt="image" src="https://github.com/user-attachments/assets/24e57818-18b1-4605-a58b-86e3ab1fa976" />
 
 ---
 
@@ -246,6 +247,8 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 ```
+<img width="926" height="406" alt="image" src="https://github.com/user-attachments/assets/6cef5c5c-27ac-4892-893a-33784c2b550f" />
+<img width="860" height="397" alt="image" src="https://github.com/user-attachments/assets/fdbc49c4-2b65-4e19-85a1-4ad4f0ebbb9b" />
 
 ---
 
@@ -266,6 +269,7 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 ```
+<img width="560" height="194" alt="image" src="https://github.com/user-attachments/assets/7ec9e6c3-1fc0-42ee-ab3c-23a56b00725c" />
 
 ---
 
@@ -282,14 +286,8 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 
-aws ssm put-parameter \
-  --name "/app/dev/api-key" \
-  --value "dev-api-key-123" \
-  --type SecureString \
-  --key-id "$DEV_KMS_KEY_ARN" \
-  --overwrite \
-  --region $AWS_REGION
 ```
+<img width="874" height="403" alt="image" src="https://github.com/user-attachments/assets/20e51a39-d3b7-4896-9825-61c1e8cce3ed" />
 
 ---
 
@@ -306,14 +304,8 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 
-aws ssm put-parameter \
-  --name "/app/prod/api-key" \
-  --value "prod-api-key-123" \
-  --type SecureString \
-  --key-id "$PROD_KMS_KEY_ARN" \
-  --overwrite \
-  --region $AWS_REGION
 ```
+<img width="859" height="406" alt="image" src="https://github.com/user-attachments/assets/87a06fd4-3d80-421e-a92e-ea72a8c96b0d" />
 
 ---
 
