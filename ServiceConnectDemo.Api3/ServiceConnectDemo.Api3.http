@@ -1,0 +1,10 @@
+@ServiceConnectDemo.Api3_HostAddress = http://localhost:5083
+
+GET {{ServiceConnectDemo.Api3_HostAddress}}/chain
+Accept: application/json
+
+###
+
+GET {{ServiceConnectDemo.Api3_HostAddress}}/health
+
+###

@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/ServiceConnect/">
+    <Project Path="ServiceConnectDemo.Api1/ServiceConnectDemo.Api1.csproj" Id="a54afcf3-d93a-48f8-abe8-1bb7479cff40" />
+    <Project Path="ServiceConnectDemo.Api2/ServiceConnectDemo.Api2.csproj" Id="edf4720c-8fe0-4f35-a09c-d9d68336e4dc" />
+    <Project Path="ServiceConnectDemo.Api3/ServiceConnectDemo.Api3.csproj" Id="5f7199d5-a019-48cf-abdc-f58550c50cf1" />
+  </Folder>
   <Project Path="AWS_SAA_C03/AWS_SAA_C03.csproj" />
   <Project Path="s3replication/s3replication.csproj" Id="5e8ecb0d-0deb-47bd-ac07-49089be7f462" />
 </Solution>

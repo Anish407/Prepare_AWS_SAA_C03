@@ -1,0 +1,38 @@
+services:
+  serviceconnectdemo-api1:
+    image: serviceconnectdemo-api1:local
+    build:
+      context: .
+      dockerfile: ServiceConnectDemo.Api1/Dockerfile
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+      Downstream__Api2BaseUrl: http://serviceconnectdemo-api2:8080
+    ports:
+      - "5081:8080"
+    depends_on:
+      serviceconnectdemo-api2:
+        condition: service_started
+
+  serviceconnectdemo-api2:
+    image: serviceconnectdemo-api2:local
+    build:
+      context: .
+      dockerfile: ServiceConnectDemo.Api2/Dockerfile
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+      Downstream__Api3BaseUrl: http://serviceconnectdemo-api3:8080
+    expose:
+      - "8080"
+    depends_on:
+      serviceconnectdemo-api3:
+        condition: service_started
+
+  serviceconnectdemo-api3:
+    image: serviceconnectdemo-api3:local
+    build:
+      context: .
+      dockerfile: ServiceConnectDemo.Api3/Dockerfile
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+    expose:
+      - "8080"
