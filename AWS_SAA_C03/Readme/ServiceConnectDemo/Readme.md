@@ -162,6 +162,9 @@ IPv4 CIDR: 10.0.0.0/16
 DNS resolution: Enabled
 DNS hostnames: Enabled
 ```
+<img width="332" height="387" alt="image" src="https://github.com/user-attachments/assets/fe174ac7-d5a5-49ab-9ef2-df048128260a" />
+<img width="303" height="230" alt="image" src="https://github.com/user-attachments/assets/cc282e27-7956-41f9-a36c-f471201f35e3" />
+<img width="340" height="333" alt="image" src="https://github.com/user-attachments/assets/9af17736-c1ce-410c-8ab7-0a20528c5749" />
 
 The DNS settings are required for Cloud Map private DNS names such as:
 
