@@ -140,9 +140,17 @@ docker push <account-id>.dkr.ecr.<region>.amazonaws.com/serviceconnectdemo-api3:
 <img width="392" height="230" alt="image" src="https://github.com/user-attachments/assets/bba12fb3-c4d5-4de9-96fd-7fc43984bf75" />
 
 
-## Step 4: Create VPC, Subnets, Route Tables, And VPC Endpoints
+## Step 4: Create VPC, Subnets, Route Table, And VPC Endpoints
 
-For this lab, use a VPC with public subnets for the Application Load Balancer and private subnets for ECS Fargate tasks.
+For this lab, use one Availability Zone with:
+
+```text
+1 public subnet for the Application Load Balancer
+1 private subnet for ECS Fargate tasks
+VPC endpoints instead of a NAT Gateway
+```
+
+This is fine for a lab. For production, use at least two Availability Zones.
 
 ### VPC
 
@@ -155,20 +163,23 @@ DNS resolution: Enabled
 DNS hostnames: Enabled
 ```
 
-The DNS settings are important because Cloud Map private DNS names, such as `api2.serviceconnectdemo.local`, must resolve inside the VPC.
+The DNS settings are required for Cloud Map private DNS names such as:
+
+```text
+api2.serviceconnectdemo.local
+api3.serviceconnectdemo.local
+```
 
 ### Subnets
 
-Create at least two public subnets and two private subnets across two Availability Zones.
+Create one public subnet and one private subnet in the same Availability Zone.
 
 Example:
 
 | Subnet | AZ | CIDR | Purpose |
 | --- | --- | --- | --- |
 | `public-subnet-a` | AZ A | `10.0.0.0/24` | ALB |
-| `public-subnet-b` | AZ B | `10.0.1.0/24` | ALB |
 | `private-subnet-a` | AZ A | `10.0.10.0/24` | ECS Fargate tasks |
-| `private-subnet-b` | AZ B | `10.0.11.0/24` | ECS Fargate tasks |
 
 ### Internet Gateway
 
@@ -181,7 +192,7 @@ Attach to: serviceconnectdemo-vpc
 
 ### Public Route Table
 
-Create a public route table and associate it with both public subnets.
+Create a public route table and associate it with the public subnet.
 
 Routes:
 
@@ -190,11 +201,11 @@ Routes:
 | `10.0.0.0/16` | local |
 | `0.0.0.0/0` | Internet Gateway |
 
-The ALB uses these public subnets.
+The ALB uses the public subnet.
 
 ### Private Route Table
 
-Create a private route table and associate it with both private subnets.
+Create a private route table and associate it with the private subnet.
 
 Routes:
 
@@ -204,7 +215,7 @@ Routes:
 
 Do not add an Internet Gateway route to the private route table.
 
-Since this lab uses VPC endpoints instead of a NAT Gateway, the ECS tasks will reach AWS services through private endpoints.
+Since this lab uses VPC endpoints instead of a NAT Gateway, the ECS tasks will reach required AWS services through private endpoints.
 
 ### VPC Endpoints
 
@@ -235,7 +246,7 @@ For each interface endpoint:
 
 ```text
 VPC: serviceconnectdemo-vpc
-Subnets: private-subnet-a, private-subnet-b
+Subnet: private-subnet-a
 Private DNS: Enabled
 Security group: endpoint security group
 ```
@@ -245,10 +256,10 @@ Create an endpoint security group:
 ```text
 Name: serviceconnectdemo-endpoints-sg
 Inbound: HTTPS 443 from ECS task security groups
-Outbound: All traffic or HTTPS 443
+Outbound: HTTPS 443 or all traffic
 ```
 
-The ECS tasks call the endpoints over HTTPS port `443`.
+The ECS tasks call the interface endpoints over HTTPS port `443`.
 
 ### S3 Gateway Endpoint Configuration
 
@@ -256,17 +267,17 @@ For the S3 gateway endpoint:
 
 ```text
 VPC: serviceconnectdemo-vpc
-Route tables: private route table
+Route table: private route table
 ```
 
-This adds an S3 route to the private route table automatically.
+AWS adds the S3 route to the private route table automatically.
 
 ### ECS Task Subnet Configuration
 
 When creating ECS services, use:
 
 ```text
-Subnets: private-subnet-a, private-subnet-b
+Subnet: private-subnet-a
 Assign public IP: Disabled
 ```
 
@@ -274,14 +285,30 @@ The ECS tasks should not need public IPs.
 
 ### ALB Subnet Configuration
 
-When creating the Application Load Balancer, use:
+For a real Application Load Balancer, AWS requires at least two subnets in two Availability Zones.
+
+For a strict one-AZ lab, you have two options:
 
 ```text
-Subnets: public-subnet-a, public-subnet-b
-Scheme: Internet-facing
+Option 1: Add a second public subnet in another AZ only for the ALB.
+Option 2: Skip ALB temporarily and test ECS directly through another lab path.
 ```
 
-CloudFront will use HTTPS to reach this ALB.
+Recommended lab approach:
+
+```text
+Keep ECS tasks in one private subnet/AZ.
+Create a second tiny public subnet in another AZ only because ALB requires two AZs.
+Attach both public subnets to the ALB.
+```
+
+Example ALB subnet layout:
+
+| Subnet | AZ | CIDR | Purpose |
+| --- | --- | --- | --- |
+| `public-subnet-a` | AZ A | `10.0.0.0/24` | ALB |
+| `public-subnet-b` | AZ B | `10.0.1.0/24` | ALB only |
+| `private-subnet-a` | AZ A | `10.0.10.0/24` | ECS Fargate tasks |
 
 ## Step 5: Create Security Groups
 
