@@ -538,3 +538,6 @@ Phase 1 is complete when the CloudFront URL successfully returns the full chain 
 ## Ready For Phase 2
 
 After Phase 1 works, Phase 2 will replace the temporary Phase 1 private service discovery path with ECS Service Connect and configure internal service-to-service HTTPS.
+
+<img width="1619" height="972" alt="image" src="https://github.com/user-attachments/assets/c39b2850-7efe-466c-bcbb-a9d94222c0e9" />
+
