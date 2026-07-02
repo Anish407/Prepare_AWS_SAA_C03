@@ -4,6 +4,9 @@
 
 Run three ASP.NET Core Web APIs as Docker containers and deploy them to ECS Fargate behind CloudFront and an Application Load Balancer.
 
+<img width="1491" height="1055" alt="image" src="https://github.com/user-attachments/assets/4af4bfcf-62ae-4072-b47f-c820fde1a4b6" />
+
+
 Phase 1 architecture:
 
 ```text
