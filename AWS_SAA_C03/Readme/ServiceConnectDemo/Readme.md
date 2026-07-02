@@ -96,6 +96,8 @@ serviceconnectdemo-api2
 serviceconnectdemo-api3
 ```
 
+<img width="789" height="379" alt="image" src="https://github.com/user-attachments/assets/5e3517b5-957e-40e2-aa0e-503d519ca411" />
+
 Authenticate Docker to ECR:
 
 ```powershell
