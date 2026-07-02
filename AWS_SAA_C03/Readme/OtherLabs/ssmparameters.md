@@ -202,6 +202,7 @@ PROD_KMS_KEY_ARN=$(aws kms describe-key \
 
 echo $PROD_KMS_KEY_ARN
 ```
+<img width="874" height="310" alt="image" src="https://github.com/user-attachments/assets/24e57818-18b1-4605-a58b-86e3ab1fa976" />
 
 ---
 
@@ -246,6 +247,8 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 ```
+<img width="926" height="406" alt="image" src="https://github.com/user-attachments/assets/6cef5c5c-27ac-4892-893a-33784c2b550f" />
+<img width="860" height="397" alt="image" src="https://github.com/user-attachments/assets/fdbc49c4-2b65-4e19-85a1-4ad4f0ebbb9b" />
 
 ---
 
@@ -266,6 +269,7 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 ```
+<img width="560" height="194" alt="image" src="https://github.com/user-attachments/assets/7ec9e6c3-1fc0-42ee-ab3c-23a56b00725c" />
 
 ---
 
@@ -282,14 +286,8 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 
-aws ssm put-parameter \
-  --name "/app/dev/api-key" \
-  --value "dev-api-key-123" \
-  --type SecureString \
-  --key-id "$DEV_KMS_KEY_ARN" \
-  --overwrite \
-  --region $AWS_REGION
 ```
+<img width="874" height="403" alt="image" src="https://github.com/user-attachments/assets/20e51a39-d3b7-4896-9825-61c1e8cce3ed" />
 
 ---
 
@@ -306,14 +304,8 @@ aws ssm put-parameter \
   --overwrite \
   --region $AWS_REGION
 
-aws ssm put-parameter \
-  --name "/app/prod/api-key" \
-  --value "prod-api-key-123" \
-  --type SecureString \
-  --key-id "$PROD_KMS_KEY_ARN" \
-  --overwrite \
-  --region $AWS_REGION
 ```
+<img width="859" height="406" alt="image" src="https://github.com/user-attachments/assets/87a06fd4-3d80-421e-a92e-ea72a8c96b0d" />
 
 ---
 
@@ -325,9 +317,11 @@ aws ssm get-parameters-by-path \
   --recursive \
   --with-decryption \
   --region $AWS_REGION
+  -- profile $AdminProfile
 ```
 
 Expected result: you should see all dev and prod parameters with decrypted SecureString values.
+<img width="857" height="296" alt="image" src="https://github.com/user-attachments/assets/27a8e54b-fc48-4488-9eba-b524b8af150a" />
 
 ---
 
@@ -346,6 +340,7 @@ aws iam create-user --user-name dev-user
 aws iam create-user --user-name prod-user
 aws iam create-user --user-name platform-admin-user
 ```
+<img width="578" height="113" alt="image" src="https://github.com/user-attachments/assets/a822c3d8-3ad7-4ab4-8cde-4ae04b97be53" />
 
 ---
 
@@ -354,10 +349,11 @@ aws iam create-user --user-name platform-admin-user
 Create access keys for each user:
 
 ```bash
-aws iam create-access-key --user-name dev-user
-aws iam create-access-key --user-name prod-user
-aws iam create-access-key --user-name platform-admin-user
+aws iam create-access-key --user-name dev-user --profile $adminUser
+aws iam create-access-key --user-name prod-user  --profile $adminUser
+aws iam create-access-key --user-name platform-admin-user  --profile $adminUser
 ```
+<img width="653" height="52" alt="image" src="https://github.com/user-attachments/assets/b8bdafe8-5aeb-4bd3-a34f-123a62cacb2a" />
 
 Save the returned values:
 
@@ -377,7 +373,8 @@ Configure `dev-user` profile:
 ```bash
 aws configure --profile dev-user
 ```
-
+<img width="635" height="275" alt="image" src="https://github.com/user-attachments/assets/d5924145-4a4f-4a82-b4a1-23406558cd92" />
+Repeat the same process for the other users
 Configure `prod-user` profile:
 
 ```bash
@@ -442,6 +439,7 @@ cat > dev-user-default-ssm-policy.json <<EOF
 }
 EOF
 ```
+<img width="669" height="298" alt="image" src="https://github.com/user-attachments/assets/78dfbc18-90fb-4e53-b62b-26e8bd643f14" />
 
 Create IAM policy:
 
@@ -462,6 +460,8 @@ aws iam attach-user-policy \
   --user-name dev-user \
   --policy-arn "$DEV_USER_POLICY_ARN"
 ```
+or from the console, select the policy and attach
+<img width="721" height="353" alt="image" src="https://github.com/user-attachments/assets/5ba676b1-78f7-4017-83d4-7e97117c00c7" />
 
 ---
 
@@ -536,6 +536,7 @@ aws ssm get-parameter \
 ```
 
 Expected: success.
+<img width="785" height="94" alt="image" src="https://github.com/user-attachments/assets/5410a4fb-b96e-46c5-9c68-318d1f82098f" />
 
 ---
 
@@ -550,6 +551,9 @@ aws ssm get-parameter \
 ```
 
 Expected: failure.
+
+<img width="845" height="76" alt="image" src="https://github.com/user-attachments/assets/5e0b771b-4521-48bc-9fbd-7600313b14b3" />
+
 
 Why?
 
@@ -567,6 +571,7 @@ aws ssm get-parameter \
 ```
 
 Expected: `AccessDeniedException`.
+<img width="719" height="48" alt="image" src="https://github.com/user-attachments/assets/45a90e4b-69ed-41f5-8169-84d7a5fb4fc5" />
 
 ---
 
