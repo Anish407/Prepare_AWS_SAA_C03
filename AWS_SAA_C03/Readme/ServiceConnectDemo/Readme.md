@@ -59,6 +59,7 @@ ServiceConnectDemo.Api1
 ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
+<img width="500" height="269" alt="image" src="https://github.com/user-attachments/assets/8be606b6-6f1d-4e18-b270-b68573f4b1b9" />
 
 Only Api1 is mapped to the host:
 
@@ -192,6 +193,7 @@ Create and attach an Internet Gateway:
 Name: serviceconnectdemo-igw
 Attach to: serviceconnectdemo-vpc
 ```
+<img width="486" height="121" alt="image" src="https://github.com/user-attachments/assets/5902c815-0c92-4891-b859-b568cffed413" />
 
 ### Public Route Table
 
@@ -235,6 +237,9 @@ Interface endpoints:
 | `com.amazonaws.<region>.kms` | Interface | Only if using KMS-encrypted logs or secrets |
 | `com.amazonaws.<region>.ssmmessages` | Interface | Only if using ECS Exec |
 
+<img width="803" height="331" alt="image" src="https://github.com/user-attachments/assets/5d9b985b-29cc-4379-a469-b0be0d8fe636" />
+
+
 Gateway endpoint:
 
 | Service | Endpoint type | Required for |
@@ -245,6 +250,17 @@ Important: ECR image pulls need the S3 gateway endpoint. Do not skip it.
 
 ### Interface Endpoint Configuration
 
+Create an endpoint security group:
+
+```text
+Name: serviceconnectdemo-endpoints-sg
+Inbound: HTTPS 443 from ECS task security groups
+Outbound: HTTPS 443 or all traffic
+```
+<img width="622" height="176" alt="image" src="https://github.com/user-attachments/assets/7f00165d-9795-4df0-b915-a7bc486a899a" />
+
+
+
 For each interface endpoint:
 
 ```text
@@ -254,13 +270,6 @@ Private DNS: Enabled
 Security group: endpoint security group
 ```
 
-Create an endpoint security group:
-
-```text
-Name: serviceconnectdemo-endpoints-sg
-Inbound: HTTPS 443 from ECS task security groups
-Outbound: HTTPS 443 or all traffic
-```
 
 The ECS tasks call the interface endpoints over HTTPS port `443`.
 
@@ -704,5 +713,6 @@ Phase 1 is complete when the CloudFront URL successfully returns the full chain 
 
 After Phase 1 works, Phase 2 will replace the temporary Phase 1 private service discovery path with ECS Service Connect and configure internal service-to-service HTTPS.
 
-<img width="1619" height="972" alt="image" src="https://github.com/user-attachments/assets/c39b2850-7efe-466c-bcbb-a9d94222c0e9" />
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/66d71bf7-a7c4-4cb2-91b0-1abf3779fc55" />
+
 
