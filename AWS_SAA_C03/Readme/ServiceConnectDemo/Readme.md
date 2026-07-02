@@ -98,10 +98,15 @@ serviceconnectdemo-api3
 
 <img width="789" height="379" alt="image" src="https://github.com/user-attachments/assets/5e3517b5-957e-40e2-aa0e-503d519ca411" />
 
+### Configure the Aws cli
+<img width="283" height="19" alt="image" src="https://github.com/user-attachments/assets/6e38e697-567d-4a3a-ad3a-32c8c57ae37b" />
+
+
 Authenticate Docker to ECR:
 
 ```powershell
-aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
+aws ecr get-login-password --region eu-north-1 --profile my-dev-profile 
+| docker login --username AWS --password-stdin 123456789012.dkr.ecr.eu-north-1.amazonaws.com
 ```
 
 ## Step 3: Build And Push Docker Images
@@ -113,6 +118,9 @@ docker build -f .\ServiceConnectDemo.Api1\Dockerfile -t serviceconnectdemo-api1 
 docker build -f .\ServiceConnectDemo.Api2\Dockerfile -t serviceconnectdemo-api2 .
 docker build -f .\ServiceConnectDemo.Api3\Dockerfile -t serviceconnectdemo-api3 .
 ```
+
+<img width="781" height="349" alt="image" src="https://github.com/user-attachments/assets/cd527105-71a0-44bf-aee4-a48453e209a5" />
+
 
 Tag the images:
 
@@ -129,6 +137,8 @@ docker push <account-id>.dkr.ecr.<region>.amazonaws.com/serviceconnectdemo-api1:
 docker push <account-id>.dkr.ecr.<region>.amazonaws.com/serviceconnectdemo-api2:latest
 docker push <account-id>.dkr.ecr.<region>.amazonaws.com/serviceconnectdemo-api3:latest
 ```
+<img width="392" height="230" alt="image" src="https://github.com/user-attachments/assets/bba12fb3-c4d5-4de9-96fd-7fc43984bf75" />
+
 
 ## Step 4: Prepare Networking
 
