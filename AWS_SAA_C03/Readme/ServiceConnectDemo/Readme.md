@@ -4,7 +4,7 @@
 
 Run three ASP.NET Core Web APIs as Docker containers and deploy them to ECS Fargate behind CloudFront and an Application Load Balancer.
 
-<img width="1491" height="1055" alt="image" src="https://github.com/user-attachments/assets/4af4bfcf-62ae-4072-b47f-c820fde1a4b6" />
+
 
 
 Phase 1 architecture:
@@ -14,9 +14,12 @@ Client -> HTTPS -> CloudFront -> HTTPS -> Application Load Balancer -> ServiceCo
 ServiceConnectDemo.Api1 -> ServiceConnectDemo.Api2 -> ServiceConnectDemo.Api3
 ```
 
+## Phase 1
 In Phase 1, CloudFront to ALB uses HTTPS. The ALB terminates HTTPS and forwards traffic to `ServiceConnectDemo.Api1` on HTTP port `8080`. The internal calls from Api1 to Api2 and Api2 to Api3 also use HTTP in Phase 1.
 
-Phase 2 will add ECS Service Connect and internal HTTPS.
+<img width="1491" height="1055" alt="image" src="https://github.com/user-attachments/assets/4af4bfcf-62ae-4072-b47f-c820fde1a4b6" />
+
+## Phase 2 will add ECS Service Connect and internal HTTPS.
 
 ## Projects
 
