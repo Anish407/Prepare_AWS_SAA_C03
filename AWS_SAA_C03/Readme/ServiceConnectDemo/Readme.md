@@ -335,6 +335,9 @@ Recommended inbound rules:
 | Api2 SG | Api1 SG | 8080 |
 | Api3 SG | Api2 SG | 8080 |
 
+<img width="922" height="341" alt="image" src="https://github.com/user-attachments/assets/839f2d48-c32f-42c3-8a88-9380d01e1b0a" />
+
+
 Api2 and Api3 should not allow public inbound traffic.
 
 ## Step 6: Create AWS Cloud Map Service Discovery
