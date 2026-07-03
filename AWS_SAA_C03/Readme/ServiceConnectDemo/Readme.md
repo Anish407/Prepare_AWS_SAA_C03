@@ -337,6 +337,161 @@ Recommended inbound rules:
 
 <img width="922" height="341" alt="image" src="https://github.com/user-attachments/assets/839f2d48-c32f-42c3-8a88-9380d01e1b0a" />
 
+## Security Group Inbound And Outbound Rules
+
+Yes, the traffic chain should be:
+
+```text
+ALB -> Api1 -> Api2 -> Api3
+```
+
+So the security groups should allow:
+
+```text
+ALB sends HTTP traffic to Api1 on port 8080
+Api1 sends HTTP traffic to Api2 on port 8080
+Api2 sends HTTP traffic to Api3 on port 8080
+```
+
+### Security Groups To Create
+
+Create these security groups:
+
+| Security group | Purpose |
+| --- | --- |
+| `serviceconnectdemo-alb-sg` | Attached to the Application Load Balancer |
+| `serviceconnectdemo-api1-sg` | Attached to Api1 ECS tasks |
+| `serviceconnectdemo-api2-sg` | Attached to Api2 ECS tasks |
+| `serviceconnectdemo-api3-sg` | Attached to Api3 ECS tasks |
+| `serviceconnectdemo-endpoints-sg` | Attached to VPC interface endpoints |
+
+### ALB Security Group
+
+Inbound rules:
+
+| Type | Protocol | Port | Source |
+| --- | --- | ---: | --- |
+| HTTPS | TCP | 443 | CloudFront origin-facing managed prefix list, or `0.0.0.0/0` for lab testing |
+
+Outbound rules:
+
+| Type | Protocol | Port | Destination |
+| --- | --- | ---: | --- |
+| Custom TCP | TCP | 8080 | `serviceconnectdemo-api1-sg` |
+
+The ALB receives HTTPS traffic from CloudFront and forwards HTTP traffic to Api1 on container port `8080`.
+
+### Api1 ECS Task Security Group
+
+Inbound rules:
+
+| Type | Protocol | Port | Source |
+| --- | --- | ---: | --- |
+| Custom TCP | TCP | 8080 | `serviceconnectdemo-alb-sg` |
+
+Outbound rules:
+
+| Type | Protocol | Port | Destination |
+| --- | --- | ---: | --- |
+| Custom TCP | TCP | 8080 | `serviceconnectdemo-api2-sg` |
+| HTTPS | TCP | 443 | `serviceconnectdemo-endpoints-sg` |
+
+Api1 accepts traffic only from the ALB. Api1 calls Api2 using:
+
+```text
+http://api2.serviceconnectdemo.local:8080
+```
+
+Api1 also needs HTTPS `443` outbound to VPC endpoints so it can write logs and interact with required AWS services.
+
+### Api2 ECS Task Security Group
+
+Inbound rules:
+
+| Type | Protocol | Port | Source |
+| --- | --- | ---: | --- |
+| Custom TCP | TCP | 8080 | `serviceconnectdemo-api1-sg` |
+
+Outbound rules:
+
+| Type | Protocol | Port | Destination |
+| --- | --- | ---: | --- |
+| Custom TCP | TCP | 8080 | `serviceconnectdemo-api3-sg` |
+| HTTPS | TCP | 443 | `serviceconnectdemo-endpoints-sg` |
+
+Api2 accepts traffic only from Api1. Api2 calls Api3 using:
+
+```text
+http://api3.serviceconnectdemo.local:8080
+```
+
+### Api3 ECS Task Security Group
+
+Inbound rules:
+
+| Type | Protocol | Port | Source |
+| --- | --- | ---: | --- |
+| Custom TCP | TCP | 8080 | `serviceconnectdemo-api2-sg` |
+
+Outbound rules:
+
+| Type | Protocol | Port | Destination |
+| --- | --- | ---: | --- |
+| HTTPS | TCP | 443 | `serviceconnectdemo-endpoints-sg` |
+
+Api3 accepts traffic only from Api2. Api3 does not call another internal API, but it still needs outbound HTTPS `443` for CloudWatch Logs and other AWS service access through VPC endpoints.
+
+### VPC Interface Endpoint Security Group
+
+Attach this security group to the interface endpoints, for example:
+
+```text
+ECR API endpoint
+ECR DKR endpoint
+CloudWatch Logs endpoint
+Secrets Manager endpoint, if used
+KMS endpoint, if used
+SSM Messages endpoint, if using ECS Exec
+```
+
+Inbound rules:
+
+| Type | Protocol | Port | Source |
+| --- | --- | ---: | --- |
+| HTTPS | TCP | 443 | `serviceconnectdemo-api1-sg` |
+| HTTPS | TCP | 443 | `serviceconnectdemo-api2-sg` |
+| HTTPS | TCP | 443 | `serviceconnectdemo-api3-sg` |
+
+Outbound rules:
+
+| Type | Protocol | Port | Destination |
+| --- | --- | ---: | --- |
+| All traffic | All | All | `0.0.0.0/0` |
+
+The interface endpoint security group must allow inbound HTTPS from the ECS task security groups. Otherwise, private tasks cannot use ECR, CloudWatch Logs, or other endpoint-backed AWS services.
+
+### S3 Gateway Endpoint
+
+The S3 gateway endpoint does not use a security group.
+
+Associate it with the private route table used by the ECS task subnet.
+
+This is required because ECR image layers are downloaded from S3.
+
+### Final Security Group Flow
+
+```text
+CloudFront
+  -> HTTPS 443
+ALB SG
+  -> HTTP 8080
+Api1 SG
+  -> HTTP 8080
+Api2 SG
+  -> HTTP 8080
+Api3 SG
+```
+
 
 Api2 and Api3 should not allow public inbound traffic.
 
