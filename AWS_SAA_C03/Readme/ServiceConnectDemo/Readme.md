@@ -339,7 +339,7 @@ Recommended inbound rules:
 
 ## Security Group Inbound And Outbound Rules
 
-Yes, the traffic chain should be:
+The traffic chain should be:
 
 ```text
 ALB -> Api1 -> Api2 -> Api3
