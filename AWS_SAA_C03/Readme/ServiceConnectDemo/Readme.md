@@ -222,107 +222,7 @@ Do not add an Internet Gateway route to the private route table.
 
 Since this lab uses VPC endpoints instead of a NAT Gateway, the ECS tasks will reach required AWS services through private endpoints.
 
-### VPC Endpoints
-
-Create these endpoints so private ECS tasks can pull images from ECR and write logs without internet access.
-
-Interface endpoints:
-
-| Service | Endpoint type | Required for |
-| --- | --- | --- |
-| `com.amazonaws.<region>.ecr.api` | Interface | ECR API calls |
-| `com.amazonaws.<region>.ecr.dkr` | Interface | Docker image pulls from ECR |
-| `com.amazonaws.<region>.logs` | Interface | CloudWatch Logs |
-| `com.amazonaws.<region>.secretsmanager` | Interface | Only if using Secrets Manager |
-| `com.amazonaws.<region>.kms` | Interface | Only if using KMS-encrypted logs or secrets |
-| `com.amazonaws.<region>.ssmmessages` | Interface | Only if using ECS Exec |
-
-<img width="803" height="331" alt="image" src="https://github.com/user-attachments/assets/5d9b985b-29cc-4379-a469-b0be0d8fe636" />
-
-
-Gateway endpoint:
-
-| Service | Endpoint type | Required for |
-| --- | --- | --- |
-| `com.amazonaws.<region>.s3` | Gateway | ECR image layer download from S3 |
-
-Important: ECR image pulls need the S3 gateway endpoint. Do not skip it.
-
-### Interface Endpoint Configuration
-
-Create an endpoint security group:
-
-```text
-Name: serviceconnectdemo-endpoints-sg
-Inbound: HTTPS 443 from ECS task security groups
-Outbound: HTTPS 443 or all traffic
-```
-<img width="622" height="176" alt="image" src="https://github.com/user-attachments/assets/7f00165d-9795-4df0-b915-a7bc486a899a" />
-
-
-
-For each interface endpoint:
-
-```text
-VPC: serviceconnectdemo-vpc
-Subnet: private-subnet-a
-Private DNS: Enabled
-Security group: endpoint security group
-```
-
-
-The ECS tasks call the interface endpoints over HTTPS port `443`.
-
-### S3 Gateway Endpoint Configuration
-
-For the S3 gateway endpoint:
-
-```text
-VPC: serviceconnectdemo-vpc
-Route table: private route table
-```
-
-AWS adds the S3 route to the private route table automatically.
-
-### ECS Task Subnet Configuration
-
-When creating ECS services, use:
-
-```text
-Subnet: private-subnet-a
-Assign public IP: Disabled
-```
-
-The ECS tasks should not need public IPs.
-
-### ALB Subnet Configuration
-
-For a real Application Load Balancer, AWS requires at least two subnets in two Availability Zones.
-
-For a strict one-AZ lab, you have two options:
-
-```text
-Option 1: Add a second public subnet in another AZ only for the ALB.
-Option 2: Skip ALB temporarily and test ECS directly through another lab path.
-```
-
-Recommended lab approach:
-
-```text
-Keep ECS tasks in one private subnet/AZ.
-Create a second tiny public subnet in another AZ only because ALB requires two AZs.
-Attach both public subnets to the ALB.
-```
-
-Example ALB subnet layout:
-
-| Subnet | AZ | CIDR | Purpose |
-| --- | --- | --- | --- |
-| `public-subnet-a` | AZ A | `10.0.0.0/24` | ALB |
-| `public-subnet-b` | AZ B | `10.0.1.0/24` | ALB only |
-| `private-subnet-a` | AZ A | `10.0.10.0/24` | ECS Fargate tasks |
-
-## Step 5: Create Security Groups
+## Step 4: Create Security Groups
 
 Create one security group for the ALB and one per ECS service.
 
@@ -494,6 +394,108 @@ Api3 SG
 
 
 Api2 and Api3 should not allow public inbound traffic.
+
+
+### Step 5: VPC Endpoints
+
+Create these endpoints so private ECS tasks can pull images from ECR and write logs without internet access.
+
+Interface endpoints:
+
+| Service | Endpoint type | Required for |
+| --- | --- | --- |
+| `com.amazonaws.<region>.ecr.api` | Interface | ECR API calls |
+| `com.amazonaws.<region>.ecr.dkr` | Interface | Docker image pulls from ECR |
+| `com.amazonaws.<region>.logs` | Interface | CloudWatch Logs |
+| `com.amazonaws.<region>.secretsmanager` | Interface | Only if using Secrets Manager |
+| `com.amazonaws.<region>.kms` | Interface | Only if using KMS-encrypted logs or secrets |
+| `com.amazonaws.<region>.ssmmessages` | Interface | Only if using ECS Exec |
+
+<img width="803" height="331" alt="image" src="https://github.com/user-attachments/assets/5d9b985b-29cc-4379-a469-b0be0d8fe636" />
+
+
+Gateway endpoint:
+
+| Service | Endpoint type | Required for |
+| --- | --- | --- |
+| `com.amazonaws.<region>.s3` | Gateway | ECR image layer download from S3 |
+
+Important: ECR image pulls need the S3 gateway endpoint. Do not skip it.
+
+### Interface Endpoint Configuration
+
+Create an endpoint security group:
+
+```text
+Name: serviceconnectdemo-endpoints-sg
+Inbound: HTTPS 443 from ECS task security groups
+Outbound: HTTPS 443 or all traffic
+```
+<img width="622" height="176" alt="image" src="https://github.com/user-attachments/assets/7f00165d-9795-4df0-b915-a7bc486a899a" />
+
+
+
+For each interface endpoint:
+
+```text
+VPC: serviceconnectdemo-vpc
+Subnet: private-subnet-a
+Private DNS: Enabled
+Security group: endpoint security group
+```
+
+
+The ECS tasks call the interface endpoints over HTTPS port `443`.
+
+### S3 Gateway Endpoint Configuration
+
+For the S3 gateway endpoint:
+
+```text
+VPC: serviceconnectdemo-vpc
+Route table: private route table
+```
+
+AWS adds the S3 route to the private route table automatically.
+
+### ECS Task Subnet Configuration
+
+When creating ECS services, use:
+
+```text
+Subnet: private-subnet-a
+Assign public IP: Disabled
+```
+
+The ECS tasks should not need public IPs.
+
+### ALB Subnet Configuration
+
+For a real Application Load Balancer, AWS requires at least two subnets in two Availability Zones.
+
+For a strict one-AZ lab, you have two options:
+
+```text
+Option 1: Add a second public subnet in another AZ only for the ALB.
+Option 2: Skip ALB temporarily and test ECS directly through another lab path.
+```
+
+Recommended lab approach:
+
+```text
+Keep ECS tasks in one private subnet/AZ.
+Create a second tiny public subnet in another AZ only because ALB requires two AZs.
+Attach both public subnets to the ALB.
+```
+
+Example ALB subnet layout:
+
+| Subnet | AZ | CIDR | Purpose |
+| --- | --- | --- | --- |
+| `public-subnet-a` | AZ A | `10.0.0.0/24` | ALB |
+| `public-subnet-b` | AZ B | `10.0.1.0/24` | ALB only |
+| `private-subnet-a` | AZ A | `10.0.10.0/24` | ECS Fargate tasks |
+
 
 ## Step 6: Create AWS Cloud Map Service Discovery
 
