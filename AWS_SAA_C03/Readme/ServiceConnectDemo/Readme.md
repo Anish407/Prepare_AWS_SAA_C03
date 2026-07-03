@@ -516,142 +516,6 @@ http://api2.serviceconnectdemo.local:8080
 http://api3.serviceconnectdemo.local:8080
 ```
 
-### Option A: Create Cloud Map From The ECS Console
-
-Use this option if you are creating services manually in the AWS console.
-
-Create the namespace:
-
-```text
-ECS console -> Clusters -> your cluster -> Service discovery namespaces -> Create namespace
-Namespace type: Private
-Namespace name: serviceconnectdemo.local
-VPC: same VPC used by the ECS services
-```
-
-When creating the `ServiceConnectDemo.Api2` ECS service, enable service discovery:
-
-```text
-Service discovery: Turn on
-Namespace: serviceconnectdemo.local
-Service discovery name: api2
-DNS record type: A
-DNS TTL: 10 seconds
-Health check: ECS-managed health
-```
-
-When creating the `ServiceConnectDemo.Api3` ECS service, enable service discovery:
-
-```text
-Service discovery: Turn on
-Namespace: serviceconnectdemo.local
-Service discovery name: api3
-DNS record type: A
-DNS TTL: 10 seconds
-Health check: ECS-managed health
-```
-
-Api1 does not need a Cloud Map name for Phase 1 because the ALB calls Api1 through the target group.
-
-### Option B: Create Cloud Map With AWS CLI
-
-Create the private DNS namespace:
-
-```powershell
-aws servicediscovery create-private-dns-namespace `
-  --name serviceconnectdemo.local `
-  --vpc <vpc-id> `
-  --region <region>
-```
-
-Save the returned namespace operation ID, then check the operation until it succeeds:
-
-```powershell
-aws servicediscovery get-operation `
-  --operation-id <operation-id> `
-  --region <region>
-```
-
-Get the namespace ID:
-
-```powershell
-aws servicediscovery list-namespaces `
-  --region <region>
-```
-
-Create the Api2 discovery service:
-
-```powershell
-aws servicediscovery create-service `
-  --name api2 `
-  --namespace-id <namespace-id> `
-  --dns-config "NamespaceId=<namespace-id>,DnsRecords=[{Type=A,TTL=10}],RoutingPolicy=MULTIVALUE" `
-  --health-check-custom-config FailureThreshold=1 `
-  --region <region>
-```
-
-Create the Api3 discovery service:
-
-```powershell
-aws servicediscovery create-service `
-  --name api3 `
-  --namespace-id <namespace-id> `
-  --dns-config "NamespaceId=<namespace-id>,DnsRecords=[{Type=A,TTL=10}],RoutingPolicy=MULTIVALUE" `
-  --health-check-custom-config FailureThreshold=1 `
-  --region <region>
-```
-
-Save the returned Cloud Map service IDs. You will attach those service IDs when you create the Api2 and Api3 ECS services.
-
-### Cloud Map Requirements
-
-The VPC must have DNS support enabled:
-
-```text
-enableDnsSupport=true
-enableDnsHostnames=true
-```
-
-The ECS services must use `awsvpc` networking. Fargate tasks already require this.
-
-The security groups must allow the actual traffic after DNS resolves:
-
-```text
-Api1 SG -> Api2 SG on TCP 8080
-Api2 SG -> Api3 SG on TCP 8080
-```
-
-Cloud Map only solves naming. It does not open network paths.
-
-### Cloud Map Validation
-
-After Api2 and Api3 tasks are running, check that instances were registered:
-
-```powershell
-aws servicediscovery list-instances `
-  --service-id <api2-cloudmap-service-id> `
-  --region <region>
-
-aws servicediscovery list-instances `
-  --service-id <api3-cloudmap-service-id> `
-  --region <region>
-```
-
-From an ECS Exec shell, a temporary EC2 instance, or another tool running inside the same VPC, verify DNS resolution:
-
-```powershell
-nslookup api2.serviceconnectdemo.local
-nslookup api3.serviceconnectdemo.local
-```
-
-Then verify HTTP connectivity:
-
-```powershell
-curl http://api2.serviceconnectdemo.local:8080/health
-curl http://api3.serviceconnectdemo.local:8080/health
-```
-
-Both should return healthy responses.
 
 ## Step 7: Create ECS Cluster
 
@@ -690,7 +554,6 @@ Network mode: awsvpc
 CPU/Memory: choose small lab values, for example 0.25 vCPU and 0.5 GB memory
 Container port: 8080
 Protocol: HTTP
-Health check path: /health
 Log driver: awslogs
 ```
 
@@ -700,6 +563,7 @@ Api1 container environment variables:
 ASPNETCORE_HTTP_PORTS=8080
 Downstream__Api2BaseUrl=http://api2.serviceconnectdemo.local:8080
 ```
+<img width="809" height="280" alt="image" src="https://github.com/user-attachments/assets/b03bb974-f597-480d-90df-9313acdf5612" />
 
 Api2 container environment variables:
 
@@ -714,7 +578,112 @@ Api3 container environment variables:
 ASPNETCORE_HTTP_PORTS=8080
 ```
 
-## Step 10: Create Target Group For Api1
+## Step 10: Create ECS services
+## Create ECS Services From AWS Console
+
+### Create Api3 ECS Service
+
+Go to:
+
+```text
+ECS -> Clusters -> serviceconnectdemo-cluster -> Services -> Create
+```
+
+Use:
+
+```text
+Launch type: Fargate
+Task definition: ServiceConnectDemo.Api3
+Service name: serviceconnectdemo-api3
+Desired tasks: 1
+VPC: serviceconnectdemo-vpc
+Subnets: private-subnet-a
+Security group: serviceconnectdemo-api3-sg
+Public IP: Disabled
+Load balancer: None
+```
+
+Enable service discovery:
+
+```text
+Service discovery: Enabled
+Namespace: serviceconnectdemo.local
+Service discovery name: api3
+DNS record type: A
+TTL: 10 seconds
+```
+<img width="766" height="335" alt="image" src="https://github.com/user-attachments/assets/8aa354b4-e330-4926-bb13-d6c44d293e28" />
+
+This creates:
+
+```text
+api3.serviceconnectdemo.local
+```
+
+### Create Api2 ECS Service
+
+Create another ECS service:
+
+```text
+Launch type: Fargate
+Task definition: ServiceConnectDemo.Api2
+Service name: serviceconnectdemo-api2
+Desired tasks: 1
+VPC: serviceconnectdemo-vpc
+Subnets: private-subnet-a
+Security group: serviceconnectdemo-api2-sg
+Public IP: Disabled
+Load balancer: None
+```
+
+Enable service discovery:
+
+```text
+Service discovery: Enabled
+Namespace: serviceconnectdemo.local
+Service discovery name: api2
+DNS record type: A
+TTL: 10 seconds
+```
+
+This creates:
+<img width="899" height="423" alt="image" src="https://github.com/user-attachments/assets/b9e30858-ba25-4f9d-acc2-cd8e79ba5cef" />
+
+
+```text
+api2.serviceconnectdemo.local
+```
+
+### Create Api1 ECS Service
+
+Create the public API service last:
+
+```text
+Launch type: Fargate
+Task definition: ServiceConnectDemo.Api1
+Service name: serviceconnectdemo-api1
+Desired tasks: 1
+VPC: serviceconnectdemo-vpc
+Subnets: private-subnet-a
+Security group: serviceconnectdemo-api1-sg
+Public IP: Disabled
+```
+
+Load balancer configuration:
+
+```text
+Load balancer type: Application Load Balancer
+Container: ServiceConnectDemo.Api1
+Container port: 8080
+Target group: serviceconnectdemo-api1-tg
+```
+<img width="728" height="362" alt="image" src="https://github.com/user-attachments/assets/a1762feb-55e1-47b9-970e-a140466154fe" />
+
+
+
+---
+
+## Step 11: Create Target Group For Api1
 
 Create an ALB target group for Api1:
 
@@ -744,38 +713,6 @@ Default action: Forward to Api1 target group
 ```
 
 The ALB receives HTTPS traffic and forwards HTTP to Api1 on port `8080`.
-
-## Step 12: Create ECS Services
-
-Create three ECS services:
-
-```text
-ServiceConnectDemo.Api1
-ServiceConnectDemo.Api2
-ServiceConnectDemo.Api3
-```
-
-Use:
-
-```text
-Launch type: Fargate
-Subnets: Private subnets
-Assign public IP: Disabled
-Desired tasks: 1 for lab
-```
-
-Attach only Api1 to the ALB target group.
-
-Attach Api2 and Api3 to the Cloud Map discovery services created in Step 6:
-
-```text
-ServiceConnectDemo.Api2 -> Cloud Map service api2.serviceconnectdemo.local
-ServiceConnectDemo.Api3 -> Cloud Map service api3.serviceconnectdemo.local
-```
-
-If you use the ECS console, this is done by enabling service discovery while creating each ECS service.
-
-If you use the AWS CLI, pass the `serviceRegistries` setting when creating each ECS service. Use the Cloud Map service ARN for Api2 and Api3.
 
 ## Step 13: Validate ALB
 
