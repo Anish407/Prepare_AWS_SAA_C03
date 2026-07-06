@@ -11,6 +11,7 @@
 - [9. Lambdas](AWS_SAA_C03/Readme/Lambdas/lambdasIntro.md)
 - [10. ACM (certificate manager)](AWS_SAA_C03/Readme/ACM/acmintro.md)
 - [11. CloudFormation](AWS_SAA_C03/Readme/CloudFormation/cloudformationIntro.md)
+- [12. Amazon Data Firehose and Kinesis](AWS_SAA_C03/Readme/Kinesis/datafirehose-and-kinesis.md)
 
 
 - Other Labs
