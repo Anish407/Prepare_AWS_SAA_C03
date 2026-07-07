@@ -603,6 +603,63 @@ Api3 container environment variables:
 ASPNETCORE_HTTP_PORTS=8080
 ```
 
+## Step 10 Create Application Load Balancer
+
+### Step 10.1 Requesting a certificate from ACM
+
+We need a certificate for the load balancer for the https listener, So we go to ACM and request for a public certificate.
+<img width="925" height="389" alt="image" src="https://github.com/user-attachments/assets/2d478be3-9d22-481e-8bde-69cdacaff64f" />
+The certificate is now pending validation.
+<img width="446" height="243" alt="image" src="https://github.com/user-attachments/assets/a0d4ce02-ff5d-4c18-be82-d9f8c778a7ea" />
+So we need to add the cname and cvalue to route53
+<img width="801" height="135" alt="image" src="https://github.com/user-attachments/assets/d3359a04-3f04-4214-9a1e-5a3de8b2475c" />
+
+### Step 10.2 Create the  Application Load Balancer
+
+Create an internet-facing or internal ALB depending on your CloudFront origin design.
+
+For a simple lab, use:
+
+```text
+Type: Application Load Balancer
+Scheme: Internet-facing
+Subnets: Public subnets
+Listener: HTTPS 443
+Certificate: ACM certificate in the same region as the ALB
+Default action: Forward to Api1 target group
+```
+
+<img width="665" height="379" alt="image" src="https://github.com/user-attachments/assets/02f0abe8-d019-4301-b7e7-b2db59d6c252" />
+
+<img width="783" height="369" alt="image" src="https://github.com/user-attachments/assets/4b2fb8fd-ed4c-4758-b8fe-3fd3454d63cd" />
+
+The ALB receives HTTPS traffic and forwards HTTP to Api1 on port `8080`.
+
+<img width="703" height="355" alt="image" src="https://github.com/user-attachments/assets/18d349f9-55bc-45c1-88e5-083712cb6330" />
+
+<img width="630" height="296" alt="image" src="https://github.com/user-attachments/assets/eb2bb485-a45b-48f5-a372-dfaa2965cce3" />
+ 
+
+
+
+## Step 11: Create Target Group For Api1
+
+Create an ALB target group for Api1:
+
+```text
+Target type: IP
+Protocol: HTTP
+Port: 8080
+Health check path: /health
+Success codes: 200
+```
+
+Only `ServiceConnectDemo.Api1` is registered with this target group.
+
+
+
+
+
 ## Step 10: Create ECS services
 ## Create ECS Services From AWS Console
 
@@ -708,51 +765,6 @@ Target group: serviceconnectdemo-api1-tg
 
 ---
 
-## Step 11: Create Target Group For Api1
-
-Create an ALB target group for Api1:
-
-```text
-Target type: IP
-Protocol: HTTP
-Port: 8080
-Health check path: /health
-Success codes: 200
-```
-
-Only `ServiceConnectDemo.Api1` is registered with this target group.
-
-## Step 10.2 Requesting a certificate from ACM
-
-We need a certificate for the load balancer, So we go to ACM and request for a public certificate.
-<img width="925" height="389" alt="image" src="https://github.com/user-attachments/assets/2d478be3-9d22-481e-8bde-69cdacaff64f" />
-The certificate is now pending validation.
-<img width="446" height="243" alt="image" src="https://github.com/user-attachments/assets/a0d4ce02-ff5d-4c18-be82-d9f8c778a7ea" />
-So we need to add the cname and cvalue to route53
-<img width="801" height="135" alt="image" src="https://github.com/user-attachments/assets/d3359a04-3f04-4214-9a1e-5a3de8b2475c" />
-
-
-## Step 11: Create Application Load Balancer
-
-Create an internet-facing or internal ALB depending on your CloudFront origin design.
-
-For a simple lab, use:
-
-```text
-Type: Application Load Balancer
-Scheme: Internet-facing
-Subnets: Public subnets
-Listener: HTTPS 443
-Certificate: ACM certificate in the same region as the ALB
-Default action: Forward to Api1 target group
-```
-<img width="783" height="369" alt="image" src="https://github.com/user-attachments/assets/4b2fb8fd-ed4c-4758-b8fe-3fd3454d63cd" />
-
-The ALB receives HTTPS traffic and forwards HTTP to Api1 on port `8080`.
-
-<img width="703" height="355" alt="image" src="https://github.com/user-attachments/assets/18d349f9-55bc-45c1-88e5-083712cb6330" />
-
-<img width="630" height="296" alt="image" src="https://github.com/user-attachments/assets/eb2bb485-a45b-48f5-a372-dfaa2965cce3" />
 
 
 ## Step 13: Validate ALB
