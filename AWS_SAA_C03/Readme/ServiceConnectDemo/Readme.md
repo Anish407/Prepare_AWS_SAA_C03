@@ -889,6 +889,13 @@ I requested another certificate from ACM and added it to the cloudfront and conf
 
 <img width="709" height="328" alt="image" src="https://github.com/user-attachments/assets/dcaa399a-3a22-4723-a753-544688363a26" />
 
+when we create the origin ensure that we have pasted the name requested in the certificate for the alb. 
+<img width="737" height="167" alt="image" src="https://github.com/user-attachments/assets/4e915bf2-bde5-4a59-a37c-0c705ac96193" />
+
+<img width="597" height="169" alt="image" src="https://github.com/user-attachments/assets/39dcf064-2ba0-40dd-8740-57d8539c469e" />
+
+
+
 
 ## Step 15: Validate CloudFront
 
@@ -905,6 +912,7 @@ ServiceConnectDemo.Api1
 ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
+<img width="588" height="293" alt="image" src="https://github.com/user-attachments/assets/fcee1860-0a5b-4d5f-9b8d-0b68a7e86bbd" />
 
 Phase 1 is complete when the CloudFront URL successfully returns the full chain response.
 
