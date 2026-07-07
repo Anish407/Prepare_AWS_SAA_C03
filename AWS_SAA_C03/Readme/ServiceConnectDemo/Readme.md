@@ -511,12 +511,30 @@ Use this naming for the lab:
 | Api2 DNS name | `api2.serviceconnectdemo.local` |
 | Api3 DNS name | `api3.serviceconnectdemo.local` |
 
+Select ```API calls and DNS queries in VPCs``` for ```instance discovery```
+<img width="802" height="407" alt="image" src="https://github.com/user-attachments/assets/493a95e2-837f-4036-9012-9b7277f28f38" />
+
+Now create 2 services inside the namespace
+<img width="894" height="422" alt="image" src="https://github.com/user-attachments/assets/1c54e2ba-abc3-486f-b8a0-cffeabba1cac" />
+
+AWS Cloud Map combines:
+```text
+service name + namespace
+```
+So this creates:
+
+```text
+api2.serviceconnectdemo.local
+api3.serviceconnectdemo.local
+```
 The internal URLs will be:
 
 ```text
 http://api2.serviceconnectdemo.local:8080
 http://api3.serviceconnectdemo.local:8080
 ```
+this also creates a private hosted zone in route53
+<img width="674" height="144" alt="image" src="https://github.com/user-attachments/assets/65e676e9-1822-4aec-8ee7-a514f1cd81ce" />
 
 
 ## Step 7: Create ECS Cluster
@@ -528,6 +546,8 @@ Example name:
 ```text
 serviceconnectdemo-cluster
 ```
+<img width="737" height="176" alt="image" src="https://github.com/user-attachments/assets/2661c16c-5b72-4147-b7f5-bc42768ebf36" />
+
 
 ## Step 8: Create Task Execution Role
 
@@ -537,12 +557,15 @@ Create or use an ECS task execution role with permissions for:
 Pulling images from ECR
 Writing logs to CloudWatch Logs
 ```
+<img width="440" height="350" alt="image" src="https://github.com/user-attachments/assets/48eccba5-7afc-4359-bc1e-b5ef684c36ca" />
 
 AWS managed policy:
 
 ```text
 AmazonECSTaskExecutionRolePolicy
 ```
+<img width="440" height="350" alt="image" src="https://github.com/user-attachments/assets/d78b0b0d-be21-4795-b952-0b7750ce1b18" />
+
 
 ## Step 9: Create Task Definitions
 
@@ -597,6 +620,7 @@ Use:
 Launch type: Fargate
 Task definition: ServiceConnectDemo.Api3
 Service name: serviceconnectdemo-api3
+health check grace period: 300
 Desired tasks: 1
 VPC: serviceconnectdemo-vpc
 Subnets: private-subnet-a
@@ -604,6 +628,9 @@ Security group: serviceconnectdemo-api3-sg
 Public IP: Disabled
 Load balancer: None
 ```
+<img width="822" height="413" alt="image" src="https://github.com/user-attachments/assets/0e5649ba-140f-4b86-8d2a-52c514b59322" />
+<img width="710" height="361" alt="image" src="https://github.com/user-attachments/assets/af8c0f9e-6098-4edc-8efb-33ea04dfa36b" />
+
 
 Enable service discovery:
 
@@ -614,13 +641,10 @@ Service discovery name: api3
 DNS record type: A
 TTL: 10 seconds
 ```
-<img width="766" height="335" alt="image" src="https://github.com/user-attachments/assets/8aa354b4-e330-4926-bb13-d6c44d293e28" />
+<img width="706" height="410" alt="image" src="https://github.com/user-attachments/assets/71f11e2c-fcb9-43cd-90ea-72152d718e05" />
 
-This creates:
 
-```text
-api3.serviceconnectdemo.local
-```
+
 
 ### Create Api2 ECS Service
 
@@ -649,8 +673,7 @@ TTL: 10 seconds
 ```
 
 This creates:
-<img width="899" height="423" alt="image" src="https://github.com/user-attachments/assets/b9e30858-ba25-4f9d-acc2-cd8e79ba5cef" />
-
+<img width="634" height="416" alt="image" src="https://github.com/user-attachments/assets/f59f0376-c6d7-43ce-83cd-568ea4a74299" />
 
 ```text
 api2.serviceconnectdemo.local
@@ -699,6 +722,16 @@ Success codes: 200
 
 Only `ServiceConnectDemo.Api1` is registered with this target group.
 
+## Step 10.2 Requesting a certificate from ACM
+
+We need a certificate for the load balancer, So we go to ACM and request for a public certificate.
+<img width="925" height="389" alt="image" src="https://github.com/user-attachments/assets/2d478be3-9d22-481e-8bde-69cdacaff64f" />
+The certificate is now pending validation.
+<img width="446" height="243" alt="image" src="https://github.com/user-attachments/assets/a0d4ce02-ff5d-4c18-be82-d9f8c778a7ea" />
+So we need to add the cname and cvalue to route53
+<img width="801" height="135" alt="image" src="https://github.com/user-attachments/assets/d3359a04-3f04-4214-9a1e-5a3de8b2475c" />
+
+
 ## Step 11: Create Application Load Balancer
 
 Create an internet-facing or internal ALB depending on your CloudFront origin design.
@@ -713,10 +746,51 @@ Listener: HTTPS 443
 Certificate: ACM certificate in the same region as the ALB
 Default action: Forward to Api1 target group
 ```
+<img width="783" height="369" alt="image" src="https://github.com/user-attachments/assets/4b2fb8fd-ed4c-4758-b8fe-3fd3454d63cd" />
 
 The ALB receives HTTPS traffic and forwards HTTP to Api1 on port `8080`.
 
+<img width="703" height="355" alt="image" src="https://github.com/user-attachments/assets/18d349f9-55bc-45c1-88e5-083712cb6330" />
+
+<img width="630" height="296" alt="image" src="https://github.com/user-attachments/assets/eb2bb485-a45b-48f5-a372-dfaa2965cce3" />
+
+
 ## Step 13: Validate ALB
+
+I forgot to add the inbound rule for the alb security group, so we get this error, lets fix that
+<img width="358" height="200" alt="image" src="https://github.com/user-attachments/assets/5cea7968-3901-49c7-806e-4135b6bca4f6" />
+
+but even after adding inbound rules the listener didnt work, then i realised that i had assigned the wrong security group to the alb
+<img width="380" height="381" alt="image" src="https://github.com/user-attachments/assets/cc7366a0-b72f-4635-9aee-9fdd298feb24" />
+
+Lets fix that again,
+<img width="443" height="170" alt="image" src="https://github.com/user-attachments/assets/26091367-cadf-4b5c-a81b-6502fbb7991a" />
+
+Next mistake was that i wrongly added the target group to port 443, that will be done in phase 2 of the lab. For phase 1: the internal communication will be unecrypted.
+<img width="518" height="263" alt="image" src="https://github.com/user-attachments/assets/186f7389-caa7-4e7e-a0bf-a7176cfab18c" />
+
+So we create a new target group
+<img width="790" height="416" alt="image" src="https://github.com/user-attachments/assets/89f77989-b71d-4cc7-93f3-27ec309c7585" />
+<img width="758" height="407" alt="image" src="https://github.com/user-attachments/assets/378f3922-c76e-4664-a0fd-4944f8b5ede0" />
+
+Then we update the listener to use the new target group
+<img width="797" height="182" alt="image" src="https://github.com/user-attachments/assets/96d25d4d-6823-4d75-990f-5f3f407d58e2" />
+<img width="859" height="420" alt="image" src="https://github.com/user-attachments/assets/d1b9c791-303a-4641-9c41-d13ca6d9b1fd" />
+Then we update the ecs cluster
+<img width="596" height="414" alt="image" src="https://github.com/user-attachments/assets/5a7dcf9f-3d9d-4a12-9e1a-7b35e32ee9ae" />
+
+We can check the resource map on the alb to confirm connectivity between the resources
+<img width="806" height="209" alt="image" src="https://github.com/user-attachments/assets/bb8a272b-d1df-49bf-bd71-a6b8155412b2" />
+
+Now when i call the health endpoint
+<img width="556" height="110" alt="image" src="https://github.com/user-attachments/assets/2b3df6f1-670f-4f39-80ea-9e41fe8e97e9" />
+
+
+But when i call the chain endpoint, i get an error
+<img width="573" height="365" alt="image" src="https://github.com/user-attachments/assets/101d3f6f-9838-4df6-bbd3-95dedcad4f7c" />
+that is because of some misconfiguration
+<img width="534" height="43" alt="image" src="https://github.com/user-attachments/assets/8ee3bd10-ea20-4d47-9dc8-e4b7cb1043a6" />
+
 
 After the Api1 ECS service is healthy in the target group, test the ALB:
 
