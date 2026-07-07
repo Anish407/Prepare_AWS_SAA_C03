@@ -557,6 +557,7 @@ Create or use an ECS task execution role with permissions for:
 Pulling images from ECR
 Writing logs to CloudWatch Logs
 ```
+<img width="440" height="350" alt="image" src="https://github.com/user-attachments/assets/48eccba5-7afc-4359-bc1e-b5ef684c36ca" />
 
 AWS managed policy:
 
