@@ -511,6 +511,9 @@ Use this naming for the lab:
 | Api2 DNS name | `api2.serviceconnectdemo.local` |
 | Api3 DNS name | `api3.serviceconnectdemo.local` |
 
+Select ```API calls and DNS queries in VPCs``` for ```instance discovery```
+<img width="802" height="407" alt="image" src="https://github.com/user-attachments/assets/493a95e2-837f-4036-9012-9b7277f28f38" />
+
 The internal URLs will be:
 
 ```text
