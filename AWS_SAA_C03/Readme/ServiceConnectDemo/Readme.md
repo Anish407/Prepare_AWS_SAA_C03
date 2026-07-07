@@ -772,7 +772,17 @@ Container: ServiceConnectDemo.Api1
 Container port: 8080
 Target group: serviceconnectdemo-api1-tg
 ```
-<img width="728" height="362" alt="image" src="https://github.com/user-attachments/assets/a1762feb-55e1-47b9-970e-a140466154fe" />
+<img width="686" height="257" alt="image" src="https://github.com/user-attachments/assets/f24c20dc-8f4f-4bd1-b081-ef651ea598ef" />
+
+select the loadbalancer and the target group we created previously
+<img width="649" height="332" alt="image" src="https://github.com/user-attachments/assets/23f5e2d8-382b-4cb8-bd7c-9d31a6a167f9" />
+
+<img width="635" height="232" alt="image" src="https://github.com/user-attachments/assets/89fa5258-53c4-4856-b41c-f2207e7094b2" />
+
+---
+### Add custom domain name for the ALB
+Go to Route53 and add an alias for the load balancer
+<img width="704" height="340" alt="image" src="https://github.com/user-attachments/assets/e49b9a8b-79cd-4c83-9fb2-5b1f88866b9b" />
 
 
 
@@ -780,7 +790,7 @@ Target group: serviceconnectdemo-api1-tg
 
 
 
-## Step 13: Validate ALB
+## Step 13: Mistakes I made
 
 I forgot to add the inbound rule for the alb security group, so we get this error, lets fix that
 <img width="358" height="200" alt="image" src="https://github.com/user-attachments/assets/5cea7968-3901-49c7-806e-4135b6bca4f6" />
@@ -816,8 +826,14 @@ But when i call the chain endpoint, i get an error
 that is because of some misconfiguration
 <img width="534" height="43" alt="image" src="https://github.com/user-attachments/assets/8ee3bd10-ea20-4d47-9dc8-e4b7cb1043a6" />
 
-
+## Testing the ALB
 After the Api1 ECS service is healthy in the target group, test the ALB:
+
+### Call the health check endpoint
+<img width="455" height="117" alt="image" src="https://github.com/user-attachments/assets/90e1a609-7281-4255-9558-b5c07d10b774" />
+
+### Call the chain endpoint from the ALB
+Flow: alb -> Api1 -> Api2 -> Api3
 
 ```text
 https://<alb-dns-name>/chain
@@ -830,6 +846,8 @@ ServiceConnectDemo.Api1
 ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
+
+<img width="512" height="295" alt="image" src="https://github.com/user-attachments/assets/e0bec549-1ca9-459a-90b7-6f0121f6754d" />
 
 If this fails, check:
 
