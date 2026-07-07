@@ -514,6 +514,19 @@ Use this naming for the lab:
 Select ```API calls and DNS queries in VPCs``` for ```instance discovery```
 <img width="802" height="407" alt="image" src="https://github.com/user-attachments/assets/493a95e2-837f-4036-9012-9b7277f28f38" />
 
+Now create 2 services inside the namespace
+<img width="894" height="422" alt="image" src="https://github.com/user-attachments/assets/1c54e2ba-abc3-486f-b8a0-cffeabba1cac" />
+
+AWS Cloud Map combines:
+```text
+service name + namespace
+```
+So this creates:
+
+```text
+api2.serviceconnectdemo.local
+api3.serviceconnectdemo.local
+```
 The internal URLs will be:
 
 ```text
@@ -619,19 +632,7 @@ TTL: 10 seconds
 ```
 <img width="766" height="335" alt="image" src="https://github.com/user-attachments/assets/8aa354b4-e330-4926-bb13-d6c44d293e28" />
 
-Now create 2 services inside the namespace
-<img width="894" height="422" alt="image" src="https://github.com/user-attachments/assets/1c54e2ba-abc3-486f-b8a0-cffeabba1cac" />
 
-AWS Cloud Map combines:
-```text
-service name + namespace
-```
-So this creates:
-
-```text
-api2.serviceconnectdemo.local
-api3.serviceconnectdemo.local
-```
 
 ### Create Api2 ECS Service
 
