@@ -619,9 +619,17 @@ TTL: 10 seconds
 ```
 <img width="766" height="335" alt="image" src="https://github.com/user-attachments/assets/8aa354b4-e330-4926-bb13-d6c44d293e28" />
 
-This creates:
+Now create 2 services inside the namespace
+<img width="894" height="422" alt="image" src="https://github.com/user-attachments/assets/1c54e2ba-abc3-486f-b8a0-cffeabba1cac" />
+
+AWS Cloud Map combines:
+```text
+service name + namespace
+```
+So this creates:
 
 ```text
+api2.serviceconnectdemo.local
 api3.serviceconnectdemo.local
 ```
 
