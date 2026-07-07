@@ -609,12 +609,42 @@ ASPNETCORE_HTTP_PORTS=8080
 
 We need a certificate for the load balancer for the https listener, So we go to ACM and request for a public certificate.
 <img width="925" height="389" alt="image" src="https://github.com/user-attachments/assets/2d478be3-9d22-481e-8bde-69cdacaff64f" />
+
 The certificate is now pending validation.
+
 <img width="446" height="243" alt="image" src="https://github.com/user-attachments/assets/a0d4ce02-ff5d-4c18-be82-d9f8c778a7ea" />
-So we need to add the cname and cvalue to route53
+
+So we need to add the cname and cvalue to route53.
+
 <img width="801" height="135" alt="image" src="https://github.com/user-attachments/assets/d3359a04-3f04-4214-9a1e-5a3de8b2475c" />
 
-### Step 10.2 Create the  Application Load Balancer
+Once the value is added the certificate status changes to issued.
+
+<img width="485" height="129" alt="image" src="https://github.com/user-attachments/assets/d553c6df-eb58-49b3-a633-0ed11633eea0" />
+
+
+### Step 10.2: Create Target Group For Api1
+---
+
+Create an ALB target group for Api1:
+
+```text
+Target type: IP
+Protocol: HTTP
+Port: 8080
+Health check path: /health
+Success codes: 200
+```
+
+<img width="797" height="407" alt="image" src="https://github.com/user-attachments/assets/59e713e0-57fe-419a-8223-2c5753623adf" />
+
+Only `ServiceConnectDemo.Api1` is registered with this target group. The other 2 services are internal and are not exposed via the ALB.
+
+
+
+
+### Step 103 Create the  Application Load Balancer
+---
 
 Create an internet-facing or internal ALB depending on your CloudFront origin design.
 
@@ -629,37 +659,20 @@ Certificate: ACM certificate in the same region as the ALB
 Default action: Forward to Api1 target group
 ```
 
-<img width="665" height="379" alt="image" src="https://github.com/user-attachments/assets/02f0abe8-d019-4301-b7e7-b2db59d6c252" />
+<img width="836" height="334" alt="image" src="https://github.com/user-attachments/assets/3d720519-dcae-463d-aea0-71bdf7fca9a8" />
 
-<img width="783" height="369" alt="image" src="https://github.com/user-attachments/assets/4b2fb8fd-ed4c-4758-b8fe-3fd3454d63cd" />
+<img width="840" height="358" alt="image" src="https://github.com/user-attachments/assets/b38a586d-bdf3-4008-a613-c3c5ee4f74a1" />
+
+<img width="789" height="157" alt="image" src="https://github.com/user-attachments/assets/a9379265-361b-4b9e-8cd8-1a7c6755054d" />
+
 
 The ALB receives HTTPS traffic and forwards HTTP to Api1 on port `8080`.
 
-<img width="703" height="355" alt="image" src="https://github.com/user-attachments/assets/18d349f9-55bc-45c1-88e5-083712cb6330" />
+<img width="862" height="374" alt="image" src="https://github.com/user-attachments/assets/7cceca7b-36ac-44c5-9b01-adc2f44228c0" />
 
-<img width="630" height="296" alt="image" src="https://github.com/user-attachments/assets/eb2bb485-a45b-48f5-a372-dfaa2965cce3" />
+<img width="856" height="237" alt="image" src="https://github.com/user-attachments/assets/b8e98ad8-84b8-4ff9-8eee-13753c0509e8" />
+
  
-
-
-
-## Step 11: Create Target Group For Api1
-
-Create an ALB target group for Api1:
-
-```text
-Target type: IP
-Protocol: HTTP
-Port: 8080
-Health check path: /health
-Success codes: 200
-```
-
-Only `ServiceConnectDemo.Api1` is registered with this target group.
-
-
-
-
-
 ## Step 10: Create ECS services
 ## Create ECS Services From AWS Console
 
