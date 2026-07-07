@@ -533,6 +533,8 @@ The internal URLs will be:
 http://api2.serviceconnectdemo.local:8080
 http://api3.serviceconnectdemo.local:8080
 ```
+this also creates a private hosted zone in route53
+<img width="674" height="144" alt="image" src="https://github.com/user-attachments/assets/65e676e9-1822-4aec-8ee7-a514f1cd81ce" />
 
 
 ## Step 7: Create ECS Cluster
