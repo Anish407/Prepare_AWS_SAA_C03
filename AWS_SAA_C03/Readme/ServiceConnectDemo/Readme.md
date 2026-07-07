@@ -546,6 +546,8 @@ Example name:
 ```text
 serviceconnectdemo-cluster
 ```
+<img width="737" height="176" alt="image" src="https://github.com/user-attachments/assets/2661c16c-5b72-4147-b7f5-bc42768ebf36" />
+
 
 ## Step 8: Create Task Execution Role
 
@@ -561,6 +563,8 @@ AWS managed policy:
 ```text
 AmazonECSTaskExecutionRolePolicy
 ```
+<img width="440" height="350" alt="image" src="https://github.com/user-attachments/assets/d78b0b0d-be21-4795-b952-0b7750ce1b18" />
+
 
 ## Step 9: Create Task Definitions
 
