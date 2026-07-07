@@ -876,6 +876,7 @@ Allowed methods: GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE
 Cache policy: CachingDisabled
 Origin request policy: forward required headers and query strings for API testing
 ```
+<img width="880" height="410" alt="image" src="https://github.com/user-attachments/assets/ade083da-7018-4fb6-ad68-becdb6558aeb" />
 
 Certificate rules:
 
@@ -883,6 +884,11 @@ Certificate rules:
 ALB HTTPS certificate: ACM certificate in the ALB region
 CloudFront viewer certificate: ACM certificate in us-east-1 if using a custom CloudFront domain
 ```
+I requested another certificate from ACM and added it to the cloudfront and configured a alternate domain name for it.
+<img width="202" height="145" alt="image" src="https://github.com/user-attachments/assets/d26c8111-6786-4886-94e3-85465548d9ac" />
+
+<img width="709" height="328" alt="image" src="https://github.com/user-attachments/assets/dcaa399a-3a22-4723-a753-544688363a26" />
+
 
 ## Step 15: Validate CloudFront
 
