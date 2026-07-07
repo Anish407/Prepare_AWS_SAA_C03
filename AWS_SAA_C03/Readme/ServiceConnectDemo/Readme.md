@@ -782,6 +782,14 @@ Then we update the ecs cluster
 We can check the resource map on the alb to confirm connectivity between the resources
 <img width="806" height="209" alt="image" src="https://github.com/user-attachments/assets/bb8a272b-d1df-49bf-bd71-a6b8155412b2" />
 
+Now when i call the health endpoint
+<img width="556" height="110" alt="image" src="https://github.com/user-attachments/assets/2b3df6f1-670f-4f39-80ea-9e41fe8e97e9" />
+
+
+But when i call the chain endpoint, i get an error
+<img width="573" height="365" alt="image" src="https://github.com/user-attachments/assets/101d3f6f-9838-4df6-bbd3-95dedcad4f7c" />
+that is because of some misconfiguration
+<img width="534" height="43" alt="image" src="https://github.com/user-attachments/assets/8ee3bd10-ea20-4d47-9dc8-e4b7cb1043a6" />
 
 
 After the Api1 ECS service is healthy in the target group, test the ALB:
