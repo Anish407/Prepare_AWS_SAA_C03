@@ -19,6 +19,7 @@
     - [Managing SSM Parameters using IAM](./AWS_SAA_C03/Readme/OtherLabs/ssmparameters.md)
     - [Amazon ECS Service Connect intro](./AWS_SAA_C03/Readme/ServiceConnectDemo/ServiceConnectIntro.md)
     - [ServiceConnectDemo Phase 1 ECS Fargate lab](./AWS_SAA_C03/Readme/ServiceConnectDemo/Readme.md)
+    - [ServiceConnectDemo Phase 2 ECS Service Connect HTTPS lab](./AWS_SAA_C03/Readme/ServiceConnectDemo/ServiceConnectPhase2.md)
   
 
 
