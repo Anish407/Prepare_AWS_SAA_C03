@@ -17,6 +17,7 @@
 - Other Labs
     - [Updating SSM agent in a private EC2 using Systems Manager Run Command](./AWS_SAA_C03/Readme/OtherLabs/SystemsManagerRunCommand.md)
     - [Managing SSM Parameters using IAM](./AWS_SAA_C03/Readme/OtherLabs/ssmparameters.md)
+    - [Amazon ECS Service Connect intro](./AWS_SAA_C03/Readme/ServiceConnectDemo/ServiceConnectIntro.md)
     - [ServiceConnectDemo Phase 1 ECS Fargate lab](./AWS_SAA_C03/Readme/ServiceConnectDemo/Readme.md)
   
 
