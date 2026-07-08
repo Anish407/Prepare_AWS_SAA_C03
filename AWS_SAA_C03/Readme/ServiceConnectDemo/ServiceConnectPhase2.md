@@ -65,200 +65,13 @@ This avoids debugging CloudFront, ALB HTTPS, ECS, Service Connect, AWS Private C
 
 ---
 
-## Final Naming
+## Complete Lab Walkthrough
 
-Use one Service Connect namespace:
+Use this section as the full runbook for completing Phase 2 from the Phase 1 environment.
 
-```text
-serviceconnectdemo.local
-```
+### Step 1: Confirm Phase 1 Is Working
 
-Use these Service Connect endpoint names:
-
-| ECS service | Service Connect role | Endpoint name | Port |
-| --- | --- | --- | ---: |
-| `serviceconnectdemo-api1` | Client-server | `api1` | 8080 |
-| `serviceconnectdemo-api2` | Client-server | `api2` | 8080 |
-| `serviceconnectdemo-api3` | Client-server | `api3` | 8080 |
-
-Why make all three client-server?
-
-```text
-Api1 receives traffic from the ALB and calls Api2.
-Api2 receives traffic from Api1 and calls Api3.
-Api3 receives traffic from Api2.
-```
-
-Api3 does not call another service, but it still needs to be a Service Connect server because Api2 calls it.
-
----
-
-## Step 1: Update Application URLs
-
-In Phase 1, Api1 and Api2 used Cloud Map DNS names:
-
-```text
-Downstream__Api2BaseUrl=http://api2.serviceconnectdemo.local:8080
-Downstream__Api3BaseUrl=http://api3.serviceconnectdemo.local:8080
-```
-
-For Service Connect without TLS, use:
-
-```text
-Downstream__Api2BaseUrl=http://api2:8080
-Downstream__Api3BaseUrl=http://api3:8080
-```
-
-For the final TLS version, use:
-
-```text
-Downstream__Api2BaseUrl=https://api2:8080
-Downstream__Api3BaseUrl=https://api3:8080
-```
-
-The short names work because the Service Connect proxy in each task knows the namespace endpoints.
-
----
-
-## Step 2: Update Task Definition Port Mappings
-
-Service Connect requires named port mappings.
-
-For each API task definition, make sure the container port mapping has:
-
-```json
-{
-  "name": "api1-http",
-  "containerPort": 8080,
-  "protocol": "tcp",
-  "appProtocol": "http"
-}
-```
-
-Use unique names per task definition:
-
-| API | Port mapping name |
-| --- | --- |
-| Api1 | `api1-http` |
-| Api2 | `api2-http` |
-| Api3 | `api3-http` |
-
-Keep:
-
-```text
-containerPort: 8080
-protocol: tcp
-appProtocol: http
-```
-
-For TLS with Service Connect, the application can still listen on HTTP inside the container. Service Connect TLS encrypts traffic between Service Connect proxies.
-
----
-
-## Step 3: Create Or Reuse The Service Connect Namespace
-
-You can reuse the Phase 1 namespace:
-
-```text
-serviceconnectdemo.local
-```
-
-Service Connect uses a Cloud Map namespace as the logical boundary for service discovery. You do not need to manually create `api2.serviceconnectdemo.local` and `api3.serviceconnectdemo.local` records for Phase 2.
-
-If you already created Cloud Map services for Phase 1, leave them alone during the migration. Once Phase 2 works, you can clean up the old Phase 1 Cloud Map service discovery entries if nothing else uses them.
-
----
-
-## Step 4: Enable Service Connect On Api3
-
-Start with the deepest backend.
-
-Go to:
-
-```text
-ECS -> Clusters -> serviceconnectdemo-cluster -> Services -> serviceconnectdemo-api3 -> Update
-```
-
-Enable Service Connect:
-
-```text
-Service Connect: Enabled
-Namespace: serviceconnectdemo.local
-Service Connect service type: Client and server
-Port name: api3-http
-Discovery name: api3
-Client alias DNS name: api3
-Client alias port: 8080
-```
-
-Deploy the service and wait until the new Api3 task is running.
-
-Verify the task has two containers:
-
-```text
-ServiceConnectDemo.Api3 application container
-Service Connect proxy container
-```
-
----
-
-## Step 5: Enable Service Connect On Api2
-
-Api2 both receives calls from Api1 and calls Api3.
-
-Update `serviceconnectdemo-api2`:
-
-```text
-Service Connect: Enabled
-Namespace: serviceconnectdemo.local
-Service Connect service type: Client and server
-Port name: api2-http
-Discovery name: api2
-Client alias DNS name: api2
-Client alias port: 8080
-```
-
-Set the Api2 environment variable:
-
-```text
-Downstream__Api3BaseUrl=http://api3:8080
-```
-
-Deploy the service and wait for replacement tasks.
-
----
-
-## Step 6: Enable Service Connect On Api1
-
-Api1 receives traffic from the ALB and calls Api2.
-
-Update `serviceconnectdemo-api1`:
-
-```text
-Service Connect: Enabled
-Namespace: serviceconnectdemo.local
-Service Connect service type: Client and server
-Port name: api1-http
-Discovery name: api1
-Client alias DNS name: api1
-Client alias port: 8080
-```
-
-Set the Api1 environment variable:
-
-```text
-Downstream__Api2BaseUrl=http://api2:8080
-```
-
-Keep the existing ALB target group association for Api1 for now.
-
-Deploy the service and wait for replacement tasks.
-
----
-
-## Step 7: Test Service Connect Without TLS
-
-Call the existing CloudFront URL:
+Before changing anything, test the current CloudFront URL:
 
 ```text
 https://<cloudfront-domain>/chain
@@ -272,198 +85,185 @@ ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
 
-At this point, the external path is still HTTPS:
+Do not continue until this works. Phase 2 should start from a known-good baseline.
+
+### Step 2: Record The Existing Phase 1 Values
+
+Write down these values before updating services:
 
 ```text
-Client -> HTTPS -> CloudFront -> HTTPS -> ALB
+AWS region
+AWS account ID
+ECS cluster name
+VPC ID
+Private subnet used by ECS tasks
+Public subnets used by ALB
+ALB name
+ALB security group
+Api1 security group
+Api2 security group
+Api3 security group
+VPC endpoint security group, if using endpoints
+Current Api1 HTTP target group
+ALB HTTPS listener
+CloudFront distribution domain
+ALB custom domain, if used
+ACM certificate ARN for the ALB HTTPS listener
 ```
 
-The internal path should now use Service Connect names:
+Also record the current Phase 1 environment variables:
 
 ```text
-Api1 -> http://api2:8080
-Api2 -> http://api3:8080
+Api1: Downstream__Api2BaseUrl=http://api2.serviceconnectdemo.local:8080
+Api2: Downstream__Api3BaseUrl=http://api3.serviceconnectdemo.local:8080
+Api3: no downstream URL
 ```
 
-If this fails, check:
+### Step 3: Confirm VPC DNS Settings
+
+Go to:
 
 ```text
-Api1 environment variable Downstream__Api2BaseUrl
-Api2 environment variable Downstream__Api3BaseUrl
-Task definition port mapping names
-Service Connect namespace
-Service Connect endpoint names
-Security group rules
-Api1, Api2, Api3 CloudWatch logs
+VPC -> Your VPC -> Actions -> Edit VPC settings
 ```
 
----
-
-## Step 8: Prepare For Service Connect TLS
-
-Service Connect TLS requires AWS Private CA.
-
-Create or choose a private certificate authority:
+Confirm:
 
 ```text
-AWS Private CA mode: Short-lived certificate mode recommended
-Required tag: AmazonECSManaged = true
+DNS resolution: Enabled
+DNS hostnames: Enabled
 ```
 
-Important cost note:
+Service Connect uses Cloud Map as its namespace layer. Keeping VPC DNS enabled is the correct baseline for this lab.
 
-```text
-AWS Private CA has a cost.
-Service Connect rotates certificates automatically.
-Do not leave the private CA running after the lab if you do not need it.
-```
-
-Service Connect TLS also uses Secrets Manager to store private key material managed by ECS.
-
----
-
-## Step 9: Create The ECS Infrastructure IAM Role
-
-Service Connect TLS needs an ECS infrastructure role that lets ECS manage certificates and related resources.
-
-Create the ECS infrastructure role using the AWS documentation for:
-
-```text
-Amazon ECS infrastructure IAM role
-```
-
-The role is used by ECS, not by your application code.
-
-You will select this role when enabling TLS in the ECS Service Connect configuration.
-
----
-
-## Step 10: Enable TLS On Api3
-
-Update `serviceconnectdemo-api3` first.
-
-In Service Connect configuration, enable TLS:
-
-```text
-TLS: Enabled
-AWS Private CA: <your-private-ca-arn>
-IAM role: <ecs-infrastructure-role>
-KMS key: AWS owned key, or your own symmetric KMS key
-```
+### Step 4: Keep The Existing Cloud Map Namespace
 
 Keep:
 
 ```text
-Port name: api3-http
-Discovery name: api3
-Client alias DNS name: api3
-Client alias port: 8080
+serviceconnectdemo.local
 ```
 
-Deploy and wait for the new Api3 task.
-
----
-
-## Step 11: Enable TLS On Api2
-
-Update `serviceconnectdemo-api2` and enable the same TLS settings:
+Do not delete the old Phase 1 Cloud Map services yet:
 
 ```text
-TLS: Enabled
-AWS Private CA: <your-private-ca-arn>
-IAM role: <ecs-infrastructure-role>
-KMS key: AWS owned key, or your own symmetric KMS key
+api2.serviceconnectdemo.local
+api3.serviceconnectdemo.local
 ```
 
-Change Api2's downstream URL:
+During Phase 2, leave them in place until the Service Connect version is fully working.
+
+The application will stop using these names:
 
 ```text
-Downstream__Api3BaseUrl=https://api3:8080
+api2.serviceconnectdemo.local
+api3.serviceconnectdemo.local
 ```
 
-Deploy and wait for the new Api2 task.
-
----
-
-## Step 12: Enable TLS On Api1
-
-Update `serviceconnectdemo-api1` and enable Service Connect TLS:
+And start using these Service Connect endpoint names:
 
 ```text
-TLS: Enabled
-AWS Private CA: <your-private-ca-arn>
-IAM role: <ecs-infrastructure-role>
-KMS key: AWS owned key, or your own symmetric KMS key
+api2
+api3
 ```
 
-Change Api1's downstream URL:
+### Step 5: Create New Task Definition Revision For Api3
+
+Go to:
 
 ```text
-Downstream__Api2BaseUrl=https://api2:8080
+ECS -> Task definitions -> ServiceConnectDemo.Api3 -> Create new revision
 ```
 
-Deploy and wait for the new Api1 task.
-
----
-
-## Step 13: Change ALB To HTTPS Toward Api1
-
-In Phase 1, the ALB forwarded HTTP to Api1.
-
-For HTTPS throughout, create or update the Api1 target group:
-
-```text
-Target type: IP
-Protocol: HTTPS
-Port: 8080
-Health check protocol: HTTPS
-Health check path: /health
-Health check port: traffic port, or explicitly 8080
-Success codes: 200
-```
-
-The ALB listener remains:
-
-```text
-Protocol: HTTPS
-Port: 443
-Certificate: ACM public certificate for the ALB domain
-Default action: Forward to Api1 HTTPS target group
-```
-
-AWS notes for Service Connect TLS with ALB:
-
-```text
-Use awsvpc network mode.
-Use an HTTPS target group.
-Configure the health check port to match the Service Connect service container port.
-Avoid ingressPortOverride for the Service Connect service.
-```
-
-For this lab:
+Update the container port mapping:
 
 ```text
 Container port: 8080
-Health check port: 8080
+Protocol: TCP
+Port name: api3-http
+App protocol: HTTP
 ```
 
----
-
-## Step 14: Security Group Updates
-
-The logical ports remain the same:
+Keep environment variables:
 
 ```text
-ALB -> Api1 on 8080
-Api1 -> Api2 on 8080
-Api2 -> Api3 on 8080
+ASPNETCORE_HTTP_PORTS=8080
 ```
 
-The difference is that the traffic is now HTTPS/TLS instead of plain HTTP where Service Connect TLS is involved.
+Save the new task definition revision.
 
-Recommended inbound rules:
+### Step 6: Create New Task Definition Revision For Api2
 
-| Security group | Inbound source | Port |
+Go to:
+
+```text
+ECS -> Task definitions -> ServiceConnectDemo.Api2 -> Create new revision
+```
+
+Update the container port mapping:
+
+```text
+Container port: 8080
+Protocol: TCP
+Port name: api2-http
+App protocol: HTTP
+```
+
+For the first pass without TLS, set:
+
+```text
+ASPNETCORE_HTTP_PORTS=8080
+Downstream__Api3BaseUrl=http://api3:8080
+```
+
+Save the new task definition revision.
+
+### Step 7: Create New Task Definition Revision For Api1
+
+Go to:
+
+```text
+ECS -> Task definitions -> ServiceConnectDemo.Api1 -> Create new revision
+```
+
+Update the container port mapping:
+
+```text
+Container port: 8080
+Protocol: TCP
+Port name: api1-http
+App protocol: HTTP
+```
+
+For the first pass without TLS, set:
+
+```text
+ASPNETCORE_HTTP_PORTS=8080
+Downstream__Api2BaseUrl=http://api2:8080
+```
+
+Save the new task definition revision.
+
+### Step 8: Check Task CPU And Memory
+
+Service Connect adds a proxy sidecar container to each ECS task.
+
+If your task size is very small, increase it before enabling Service Connect.
+
+Good lab starting point:
+
+```text
+CPU: 0.5 vCPU
+Memory: 1 GB
+```
+
+The app container and Service Connect proxy share the task resources.
+
+### Step 9: Confirm Security Groups For The Non-TLS Pass
+
+Inbound rules:
+
+| Security group | Source | Port |
 | --- | --- | ---: |
 | ALB SG | CloudFront origin-facing prefix list, or internet for lab testing | 443 |
 | Api1 SG | ALB SG | 8080 |
@@ -474,35 +274,116 @@ Outbound rules:
 
 | Security group | Destination | Port |
 | --- | --- | ---: |
+| ALB SG | Api1 SG | 8080 |
 | Api1 SG | Api2 SG | 8080 |
 | Api2 SG | Api3 SG | 8080 |
-| Api1 SG, Api2 SG, Api3 SG | VPC endpoint SG | 443 |
+| Api1 SG, Api2 SG, Api3 SG | VPC endpoint SG or NAT path | 443 |
 
-If using VPC endpoints, make sure you have endpoints for services used by ECS and TLS:
+Do not expose Api2 or Api3 publicly.
+
+### Step 10: Enable Service Connect On Api3 Without TLS
+
+Go to:
 
 ```text
-ECR API
-ECR DKR
-S3 gateway endpoint
-CloudWatch Logs
-Secrets Manager
-KMS, if using a customer managed KMS key
-AWS Private CA, if private tasks need private endpoint access for your setup
+ECS -> Clusters -> serviceconnectdemo-cluster -> Services -> serviceconnectdemo-api3 -> Update
 ```
 
-If you do not have the required endpoints and no NAT Gateway, deployments or certificate operations may fail.
+Use:
 
----
+```text
+Task definition revision: latest Api3 revision with api3-http port name
+Service Connect: Enabled
+Namespace: serviceconnectdemo.local
+Service Connect service type: Client and server
+Port name: api3-http
+Discovery name: api3
+Client alias DNS name: api3
+Client alias port: 8080
+TLS: Disabled
+Load balancer: None
+```
 
-## Step 15: Final Test
+Deploy and wait for steady state.
 
-Call the public CloudFront URL:
+Verify the new task has:
+
+```text
+Api3 application container
+Service Connect proxy container
+```
+
+### Step 11: Enable Service Connect On Api2 Without TLS
+
+Go to:
+
+```text
+ECS -> Clusters -> serviceconnectdemo-cluster -> Services -> serviceconnectdemo-api2 -> Update
+```
+
+Use:
+
+```text
+Task definition revision: latest Api2 revision with api2-http port name
+Service Connect: Enabled
+Namespace: serviceconnectdemo.local
+Service Connect service type: Client and server
+Port name: api2-http
+Discovery name: api2
+Client alias DNS name: api2
+Client alias port: 8080
+TLS: Disabled
+Load balancer: None
+```
+
+Confirm:
+
+```text
+Downstream__Api3BaseUrl=http://api3:8080
+```
+
+Deploy and wait for steady state.
+
+### Step 12: Enable Service Connect On Api1 Without TLS
+
+Go to:
+
+```text
+ECS -> Clusters -> serviceconnectdemo-cluster -> Services -> serviceconnectdemo-api1 -> Update
+```
+
+Use:
+
+```text
+Task definition revision: latest Api1 revision with api1-http port name
+Service Connect: Enabled
+Namespace: serviceconnectdemo.local
+Service Connect service type: Client and server
+Port name: api1-http
+Discovery name: api1
+Client alias DNS name: api1
+Client alias port: 8080
+TLS: Disabled
+Load balancer: keep the existing Phase 1 HTTP target group for now
+```
+
+Confirm:
+
+```text
+Downstream__Api2BaseUrl=http://api2:8080
+```
+
+Deploy and wait for steady state.
+
+### Step 13: Test Service Connect Without TLS
+
+Call:
 
 ```text
 https://<cloudfront-domain>/chain
 ```
 
-Expected response includes all three APIs:
+Expected response:
 
 ```text
 ServiceConnectDemo.Api1
@@ -510,7 +391,422 @@ ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
 
-Final traffic path:
+At this point the path is:
+
+```text
+Client -> HTTPS -> CloudFront -> HTTPS -> ALB -> HTTP -> Api1
+Api1 -> http://api2:8080 through Service Connect
+Api2 -> http://api3:8080 through Service Connect
+```
+
+Check CloudWatch logs:
+
+```text
+Api1 should call http://api2:8080
+Api2 should call http://api3:8080
+```
+
+Fix any issue here before enabling TLS.
+
+### Step 14: Create Or Choose AWS Private CA
+
+Service Connect TLS requires AWS Private Certificate Authority.
+
+Go to:
+
+```text
+AWS Private CA -> Private certificate authorities -> Create CA
+```
+
+Recommended lab values:
+
+```text
+Mode: Short-lived certificate
+Type: Root CA for lab, or subordinate CA if you already have a CA hierarchy
+Key algorithm: RSA 2048 or ECDSA 256
+```
+
+Add the required tag:
+
+```text
+Key: AmazonECSManaged
+Value: true
+```
+
+Create and activate the CA.
+
+Important:
+
+```text
+AWS Private CA can create ongoing cost.
+Delete or disable lab resources after the lab if you do not need them.
+```
+
+### Step 15: Create The ECS Infrastructure IAM Role
+
+Service Connect TLS needs an ECS infrastructure role.
+
+Go to:
+
+```text
+IAM -> Roles -> Create role
+```
+
+Use:
+
+```text
+Trusted entity type: AWS service
+Use case: Elastic Container Service
+Role purpose: ECS infrastructure role
+```
+
+Name:
+
+```text
+ecsInfrastructureRoleForServiceConnectDemo
+```
+
+Attach the permissions required by the current Amazon ECS infrastructure role documentation.
+
+This role is used by ECS to manage Service Connect TLS resources such as:
+
+```text
+AWS Private CA
+Secrets Manager secrets
+KMS, if using a customer managed KMS key
+```
+
+This role is different from:
+
+```text
+ECS task execution role
+ECS task role
+```
+
+Keep those existing roles.
+
+### Step 16: Choose The KMS Key
+
+For a lab, use:
+
+```text
+AWS owned key
+```
+
+If you choose a customer managed symmetric KMS key, make sure the ECS infrastructure role can use it.
+
+### Step 17: Confirm VPC Endpoints Or NAT For TLS
+
+If your ECS tasks run in private subnets with no NAT Gateway, confirm the required VPC endpoints exist.
+
+Already needed from Phase 1:
+
+```text
+ECR API interface endpoint
+ECR DKR interface endpoint
+CloudWatch Logs interface endpoint
+S3 gateway endpoint
+```
+
+Needed or commonly needed for Phase 2 TLS:
+
+```text
+Secrets Manager interface endpoint
+KMS interface endpoint, if using a customer managed KMS key
+ACM PCA interface endpoint, if your setup requires private access to Private CA APIs
+```
+
+Endpoint security group inbound rule:
+
+| Type | Source | Port |
+| --- | --- | ---: |
+| HTTPS | Api1 SG | 443 |
+| HTTPS | Api2 SG | 443 |
+| HTTPS | Api3 SG | 443 |
+
+### Step 18: Create An HTTPS Target Group For Api1
+
+In Phase 1, the ALB target group used HTTP.
+
+Create a new target group:
+
+```text
+EC2 -> Target Groups -> Create target group
+```
+
+Use:
+
+```text
+Target type: IP addresses
+Target group name: serviceconnectdemo-api1-https-tg
+Protocol: HTTPS
+Port: 8080
+VPC: serviceconnectdemo-vpc
+Protocol version: HTTP1
+Health check protocol: HTTPS
+Health check path: /health
+Health check port: Traffic port
+Success codes: 200
+```
+
+Do not manually register task IPs. ECS should manage registration when the Api1 service is updated.
+
+### Step 19: Enable Service Connect TLS On Api3
+
+Go to:
+
+```text
+ECS -> Clusters -> serviceconnectdemo-cluster -> Services -> serviceconnectdemo-api3 -> Update
+```
+
+Use:
+
+```text
+Service Connect: Enabled
+Namespace: serviceconnectdemo.local
+Service type: Client and server
+Port name: api3-http
+Discovery name: api3
+Client alias DNS name: api3
+Client alias port: 8080
+TLS: Enabled
+AWS Private CA: <private-ca-arn>
+IAM role: ecsInfrastructureRoleForServiceConnectDemo
+KMS key: AWS owned key, or selected customer managed key
+Load balancer: None
+```
+
+Deploy and wait for steady state.
+
+Check ECS service events for certificate, secret, or KMS errors.
+
+### Step 20: Create HTTPS Task Revision For Api2
+
+Create a new Api2 task definition revision.
+
+Change:
+
+```text
+Downstream__Api3BaseUrl=https://api3:8080
+```
+
+Keep:
+
+```text
+Port name: api2-http
+Container port: 8080
+App protocol: HTTP
+```
+
+Save the new revision.
+
+### Step 21: Enable Service Connect TLS On Api2
+
+Update `serviceconnectdemo-api2`.
+
+Use:
+
+```text
+Task definition revision: latest Api2 HTTPS revision
+Service Connect: Enabled
+Namespace: serviceconnectdemo.local
+Service type: Client and server
+Port name: api2-http
+Discovery name: api2
+Client alias DNS name: api2
+Client alias port: 8080
+TLS: Enabled
+AWS Private CA: <private-ca-arn>
+IAM role: ecsInfrastructureRoleForServiceConnectDemo
+KMS key: AWS owned key, or selected customer managed key
+Load balancer: None
+```
+
+Deploy and wait for steady state.
+
+Check Api2 logs. It should call:
+
+```text
+https://api3:8080
+```
+
+### Step 22: Create HTTPS Task Revision For Api1
+
+Create a new Api1 task definition revision.
+
+Change:
+
+```text
+Downstream__Api2BaseUrl=https://api2:8080
+```
+
+Keep:
+
+```text
+Port name: api1-http
+Container port: 8080
+App protocol: HTTP
+```
+
+Save the new revision.
+
+### Step 23: Enable Service Connect TLS On Api1 And Attach HTTPS Target Group
+
+Update `serviceconnectdemo-api1`.
+
+Use:
+
+```text
+Task definition revision: latest Api1 HTTPS revision
+Service Connect: Enabled
+Namespace: serviceconnectdemo.local
+Service type: Client and server
+Port name: api1-http
+Discovery name: api1
+Client alias DNS name: api1
+Client alias port: 8080
+TLS: Enabled
+AWS Private CA: <private-ca-arn>
+IAM role: ecsInfrastructureRoleForServiceConnectDemo
+KMS key: AWS owned key, or selected customer managed key
+```
+
+Load balancer settings:
+
+```text
+Load balancer type: Application Load Balancer
+Container: ServiceConnectDemo.Api1
+Container port: 8080
+Target group: serviceconnectdemo-api1-https-tg
+```
+
+Deploy and wait for steady state.
+
+### Step 24: Update The ALB HTTPS Listener
+
+Go to:
+
+```text
+EC2 -> Load Balancers -> serviceconnectdemo ALB -> Listeners
+```
+
+Keep:
+
+```text
+Protocol: HTTPS
+Port: 443
+Certificate: ACM public certificate for the ALB hostname
+```
+
+Update default action:
+
+```text
+Forward to: serviceconnectdemo-api1-https-tg
+```
+
+For this lab:
+
+```text
+ALB listener: HTTPS 443
+ALB target group: HTTPS 8080
+Health check: HTTPS /health on port 8080
+```
+
+### Step 25: Confirm Final Security Groups
+
+Final inbound rules:
+
+| Security group | Source | Port | Purpose |
+| --- | --- | ---: | --- |
+| ALB SG | CloudFront origin-facing prefix list, or internet for lab testing | 443 | CloudFront to ALB |
+| Api1 SG | ALB SG | 8080 | ALB HTTPS target group to Api1 |
+| Api2 SG | Api1 SG | 8080 | Api1 to Api2 through Service Connect |
+| Api3 SG | Api2 SG | 8080 | Api2 to Api3 through Service Connect |
+| Endpoint SG | Api1 SG, Api2 SG, Api3 SG | 443 | Private AWS service access |
+
+Final outbound rules:
+
+| Security group | Destination | Port | Purpose |
+| --- | --- | ---: | --- |
+| ALB SG | Api1 SG | 8080 | ALB to Api1 |
+| Api1 SG | Api2 SG | 8080 | Api1 to Api2 |
+| Api2 SG | Api3 SG | 8080 | Api2 to Api3 |
+| Api1 SG, Api2 SG, Api3 SG | Endpoint SG or NAT path | 443 | AWS APIs, logs, secrets, certificates |
+
+### Step 26: Verify Api1 HTTPS Target Group Health
+
+Go to:
+
+```text
+EC2 -> Target Groups -> serviceconnectdemo-api1-https-tg -> Targets
+```
+
+Expected:
+
+```text
+Api1 task IP is registered
+Port: 8080
+Health status: Healthy
+```
+
+If unhealthy, check:
+
+```text
+Target group protocol is HTTPS
+Health check protocol is HTTPS
+Health check path is /health
+Health check port is 8080
+Api1 SG allows inbound 8080 from ALB SG
+Api1 has Service Connect TLS enabled
+Api1 service is attached to the HTTPS target group
+```
+
+### Step 27: Verify CloudFront Origin Settings
+
+Go to:
+
+```text
+CloudFront -> Distributions -> <distribution> -> Origins
+```
+
+Confirm:
+
+```text
+Origin domain: ALB DNS name or ALB custom hostname
+Origin protocol policy: HTTPS only
+```
+
+Behavior:
+
+```text
+Viewer protocol policy: Redirect HTTP to HTTPS
+Cache policy: CachingDisabled for API testing
+Allowed methods: all methods needed by the API
+```
+
+### Step 28: Final Test
+
+Test health:
+
+```text
+https://<cloudfront-domain>/health
+```
+
+Test the full chain:
+
+```text
+https://<cloudfront-domain>/chain
+```
+
+Expected response:
+
+```text
+ServiceConnectDemo.Api1
+ServiceConnectDemo.Api2
+ServiceConnectDemo.Api3
+```
+
+Final traffic flow:
 
 ```text
 Client
@@ -520,43 +816,39 @@ CloudFront
 ALB
   -> HTTPS target group on port 8080
 Api1 Service Connect proxy
-  -> TLS
+  -> Service Connect TLS
 Api2 Service Connect proxy
-  -> TLS
+  -> Service Connect TLS
 Api3 Service Connect proxy
 ```
 
----
+### Step 29: Verify Logs And Service Connect State
 
-## Step 16: Verify Service Connect Is Being Used
-
-Check the ECS tasks for each service.
-
-Each task should have:
+For each ECS task, verify there are two containers:
 
 ```text
 Application container
 Service Connect proxy container
 ```
 
-Check ECS service events for:
+Check ECS service configuration:
 
 ```text
 Service Connect enabled
-New deployment completed
-Tasks steady state
+Namespace: serviceconnectdemo.local
+TLS enabled
+Correct discovery name
+Correct client alias
 ```
 
-Check CloudWatch metrics for Service Connect.
-
-Check CloudWatch logs for each application:
+Check CloudWatch logs:
 
 ```text
 Api1 should call https://api2:8080
 Api2 should call https://api3:8080
 ```
 
-The application should no longer log calls to:
+The apps should no longer call:
 
 ```text
 api2.serviceconnectdemo.local
@@ -635,21 +927,36 @@ Do not try to manually install private CA certificates into the .NET app for Ser
 ## Phase 2 Checklist
 
 ```text
-- Api1, Api2, and Api3 task definitions have named port mappings
-- Api3 has Service Connect enabled as client-server
-- Api2 has Service Connect enabled as client-server
-- Api1 has Service Connect enabled as client-server
-- Api1 calls api2 instead of api2.serviceconnectdemo.local
-- Api2 calls api3 instead of api3.serviceconnectdemo.local
-- Service Connect works without TLS
-- AWS Private CA is created or selected
+- Phase 1 /chain test worked before starting
+- Existing VPC, ALB, CloudFront, ECS, and security group values were recorded
+- VPC DNS resolution and DNS hostnames are enabled
+- Existing Cloud Map namespace serviceconnectdemo.local is kept during migration
+- Api3 task definition has port name api3-http
+- Api2 task definition has port name api2-http
+- Api1 task definition has port name api1-http
+- Task CPU and memory have room for the Service Connect proxy
+- Api3 Service Connect works without TLS
+- Api2 Service Connect works without TLS
+- Api1 Service Connect works without TLS
+- Api1 calls http://api2:8080 during the non-TLS pass
+- Api2 calls http://api3:8080 during the non-TLS pass
+- CloudFront /chain works with Service Connect before TLS
+- AWS Private CA exists and is active
 - AWS Private CA has AmazonECSManaged=true tag
 - ECS infrastructure IAM role exists
-- Service Connect TLS is enabled on Api1, Api2, and Api3
+- KMS option is selected
+- Required VPC endpoints or NAT path are available
+- Api1 HTTPS target group exists on port 8080
+- Api3 Service Connect TLS is enabled
+- Api2 Service Connect TLS is enabled
+- Api1 Service Connect TLS is enabled
 - Api1 calls https://api2:8080
 - Api2 calls https://api3:8080
-- ALB target group uses HTTPS on port 8080
-- CloudFront /chain returns all three API names
+- ALB HTTPS listener forwards to the Api1 HTTPS target group
+- Api1 HTTPS target group is healthy
+- CloudFront origin uses HTTPS only
+- CloudFront /health works
+- CloudFront /chain returns Api1, Api2, and Api3
 ```
 
 ## Cleanup Notes
@@ -659,14 +966,17 @@ After the lab, consider cleaning up:
 ```text
 AWS Private CA
 Service Connect TLS Secrets Manager secrets created by ECS
+Customer managed KMS key, if created only for this lab
 Unused Phase 1 Cloud Map services
 Unused HTTP target groups
 Old ECS task definition revisions
 CloudFront distribution
 ALB
 ECS services
+ECS cluster
 ECR repositories
 VPC endpoints
+VPC
 ```
 
 Be careful with the AWS Private CA. It can create ongoing cost if left active.
