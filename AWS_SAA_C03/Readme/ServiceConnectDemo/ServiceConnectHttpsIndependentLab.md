@@ -230,32 +230,7 @@ For this lab, private ECS tasks can reach AWS services using VPC endpoints inste
 
 ---
 
-## Step 5: Create VPC Endpoints
-
-Create these interface endpoints in the private subnets:
-
-```text
-com.amazonaws.<region>.ecr.api
-com.amazonaws.<region>.ecr.dkr
-com.amazonaws.<region>.logs
-com.amazonaws.<region>.secretsmanager
-com.amazonaws.<region>.kms
-com.amazonaws.<region>.acm-pca
-```
-
-Create this gateway endpoint:
-
-```text
-com.amazonaws.<region>.s3
-```
-
-Associate the S3 gateway endpoint with the private route table.
-
-Enable private DNS for interface endpoints.
-
----
-
-## Step 6: Create Security Groups
+## Step 5: Create Security Groups
 
 Create these security groups:
 
@@ -281,7 +256,7 @@ Outbound rules:
 
 | Security group | Destination | Port |
 | --- | --- | ---: |
-| ALB SG | Api1 SG | 8080 |
+| ALB SG | Api1 SG | 443 |
 | Api1 SG | Api2 SG and Endpoint SG | 8080, 443 |
 | Api2 SG | Api3 SG and Endpoint SG | 8080, 443 |
 | Api3 SG | Endpoint SG | 443 |
@@ -290,6 +265,31 @@ Outbound rules:
 Api2 and Api3 should not allow public inbound traffic.
 
 ---
+
+## Step 6: Create VPC Endpoints
+
+Create these interface endpoints in the private subnets:
+
+```text
+com.amazonaws.<region>.ecr.api
+com.amazonaws.<region>.ecr.dkr
+com.amazonaws.<region>.logs
+
+```
+
+Create this gateway endpoint:
+
+```text
+com.amazonaws.<region>.s3
+```
+
+Associate the S3 gateway endpoint with the private route table.
+
+Enable private DNS for interface endpoints.
+
+---
+
+
 
 ## Step 7: Create The Service Connect Namespace
 
@@ -306,6 +306,8 @@ Namespace: serviceconnectdemo.local
 Type: Private DNS namespace
 VPC: serviceconnectdemo-vpc
 ```
+<img width="821" height="394" alt="image" src="https://github.com/user-attachments/assets/8e7b6657-77ee-4691-90e5-dd7fb9fcf57a" />
+
 
 Do not manually create `api2.serviceconnectdemo.local` or `api3.serviceconnectdemo.local` services. ECS Service Connect will create the needed Cloud Map service entries from the ECS service configuration.
 
@@ -319,6 +321,7 @@ Create an ECS cluster:
 Name: serviceconnectdemo-cluster
 Infrastructure: AWS Fargate
 ```
+<img width="776" height="363" alt="image" src="https://github.com/user-attachments/assets/4326c66f-f9b3-4afc-b76e-bdaa59943f66" />
 
 ---
 
@@ -331,6 +334,10 @@ Role name: ecsTaskExecutionRole
 Trusted service: ecs-tasks.amazonaws.com
 Policy: AmazonECSTaskExecutionRolePolicy
 ```
+<img width="757" height="409" alt="image" src="https://github.com/user-attachments/assets/6124d7aa-c156-4903-b05b-25ef55264c62" />
+
+<img width="703" height="301" alt="image" src="https://github.com/user-attachments/assets/7710d516-c5e0-4819-bca1-4f55000569fe" />
+
 
 Create an ECS infrastructure role for Service Connect TLS:
 
