@@ -373,6 +373,7 @@ Mode: Short-lived certificate
 Type: Root CA
 Key algorithm: RSA 2048 or ECDSA 256
 ```
+<img width="926" height="407" alt="image" src="https://github.com/user-attachments/assets/ed2cb80a-c26e-40a0-af83-71595b1a2bcd" />
 
 Add the required tag:
 
