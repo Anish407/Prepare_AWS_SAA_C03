@@ -134,12 +134,25 @@ serviceconnectdemo-api2
 serviceconnectdemo-api3
 ```
 
+<img width="809" height="356" alt="image" src="https://github.com/user-attachments/assets/64481cd6-196c-419a-bdc0-e3e7d1803ff2" />
+
 Authenticate Docker to ECR:
 
 ```powershell
 aws ecr get-login-password --region <region> --profile <profile-name> |
 docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
 ```
+you can get this command from the ECR repository as well
+<img width="879" height="254" alt="image" src="https://github.com/user-attachments/assets/59c6d3d6-9f76-4362-b1c4-9537dc3ce267" />
+
+I have configured my aws cli with the following profile ```ecslab1```
+<img width="872" height="72" alt="image" src="https://github.com/user-attachments/assets/d54d2a09-a412-4e94-9ae1-fdc842f6687b" />
+
+Run this command and set up the profile after generating an access key for your IAM user
+```powershell
+aws configure --profile ecslab1   
+```
+
 
 Build images:
 
@@ -182,10 +195,10 @@ Create subnets:
 
 | Subnet | CIDR | Type | Purpose |
 | --- | --- | --- | --- |
-| `public-subnet-a` | `10.0.0.0/24` | Public | ALB |
-| `public-subnet-b` | `10.0.1.0/24` | Public | ALB |
-| `private-subnet-a` | `10.0.10.0/24` | Private | ECS tasks |
-| `private-subnet-b` | `10.0.11.0/24` | Private | ECS tasks |
+| `public-subnet-a` | `10.0.1.0/24` | Public | ALB |
+| `public-subnet-b` | `10.0.2.0/24` | Public | ALB |
+| `private-subnet-a` | `10.0.3.0/24` | Private | ECS tasks |
+| `private-subnet-b` | `10.0.4.0/24` | Private | ECS tasks |
 
 Use at least two public subnets because an ALB requires subnets in at least two Availability Zones.
 
