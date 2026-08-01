@@ -768,6 +768,9 @@ IAM role: ecsInfrastructureRoleForServiceConnectDemo
 KMS key: AWS owned key, or customer managed symmetric key
 ```
 
+<img width="717" height="344" alt="image" src="https://github.com/user-attachments/assets/9a275e6c-4a9e-40c6-9a05-c97ba5b11345" />
+
+
 <img width="780" height="344" alt="image" src="https://github.com/user-attachments/assets/e4c2dda5-833a-40a3-9fa9-ec291cfda5ad" />
 
 
@@ -809,6 +812,13 @@ Container port: 8080
 Target group: serviceconnectdemo-api1-https-tg
 ```
 
+<img width="664" height="361" alt="image" src="https://github.com/user-attachments/assets/1f89d3f1-dae9-4d28-b52a-9aa4fc6991f4" />
+
+
+<img width="654" height="391" alt="image" src="https://github.com/user-attachments/assets/bdf1c4a1-47ea-4073-ade9-e2d6b64c4743" />
+
+
+
 Service Connect:
 
 ```text
@@ -824,6 +834,8 @@ AWS Private CA: <private-ca-arn>
 IAM role: ecsInfrastructureRoleForServiceConnectDemo
 KMS key: AWS owned key, or customer managed symmetric key
 ```
+
+<img width="775" height="381" alt="image" src="https://github.com/user-attachments/assets/32734236-720a-4858-9b5c-2f4916cff909" />
 
 Important ALB and Service Connect TLS settings:
 
