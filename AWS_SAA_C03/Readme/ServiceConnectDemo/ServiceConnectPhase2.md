@@ -154,6 +154,7 @@ ServiceConnectDemo.Api1
 ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
+<img width="1000" height="538" alt="image" src="https://github.com/user-attachments/assets/7be30338-41a2-4326-a782-e510b2979972" />
 
 Stop the local containers:
 
@@ -173,14 +174,25 @@ serviceconnectdemo-api2
 serviceconnectdemo-api3
 ```
 
+<img width="534" height="313" alt="image" src="https://github.com/user-attachments/assets/4a2f8028-928c-44cd-bb45-51b3015f1fe4" />
+
+
 Authenticate Docker to ECR:
+
+You can get these commands by selecting any repository and clicking on the view push commands button
 
 ```powershell
 aws ecr get-login-password --region <region> --profile <profile-name> |
 docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
 ```
 
+<img width="960" height="48" alt="image" src="https://github.com/user-attachments/assets/719d850f-254a-4f14-96be-b7dba4e5e1ec" />
+
+
+
 Build images from the repository root:
+
+> Start docker desktop
 
 ```powershell
 docker build -f .\ServiceConnectDemo.Api1\Dockerfile -t serviceconnectdemo-api1 .
@@ -216,6 +228,11 @@ IPv4 CIDR: 10.0.0.0/16
 DNS resolution: Enabled
 DNS hostnames: Enabled
 ```
+<img width="390" height="395" alt="image" src="https://github.com/user-attachments/assets/f2a2ccb5-be93-4f23-830c-b1531db0d88c" />
+
+<img width="365" height="368" alt="image" src="https://github.com/user-attachments/assets/c2e8c553-9fc3-4f88-85a9-1cc7626d4aed" />
+
+<img width="365" height="325" alt="image" src="https://github.com/user-attachments/assets/0c381059-0a6b-4c2e-a758-47147d7af9dc" />
 
 Create subnets in at least two Availability Zones:
 
@@ -227,30 +244,6 @@ Create subnets in at least two Availability Zones:
 | `private-subnet-b` | `10.0.11.0/24` | Private | ECS tasks |
 
 The ALB requires at least two public subnets in different Availability Zones.
-
-Create and attach an Internet Gateway:
-
-```text
-Name: serviceconnectdemo-igw
-Attach to: serviceconnectdemo-vpc
-```
-
-Create a public route table:
-
-| Destination | Target |
-| --- | --- |
-| `10.0.0.0/16` | local |
-| `0.0.0.0/0` | Internet Gateway |
-
-Associate the public route table with both public subnets.
-
-Create a private route table:
-
-| Destination | Target |
-| --- | --- |
-| `10.0.0.0/16` | local |
-
-Associate the private route table with both private subnets.
 
 This lab uses VPC endpoints instead of a NAT Gateway for private ECS task access to AWS services.
 
