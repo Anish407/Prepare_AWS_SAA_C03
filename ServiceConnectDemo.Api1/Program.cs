@@ -1,5 +1,15 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.HttpOverrides;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 builder.Services.AddHealthChecks();
 builder.Services.AddHttpClient("api2", client =>
 {
@@ -10,7 +20,7 @@ builder.Services.AddHttpClient("api2", client =>
 });
 
 var app = builder.Build();
-
+app.UseForwardedHeaders();
 app.MapHealthChecks("/health");
 
 app.MapGet("/", () => Results.Redirect("/chain"));
