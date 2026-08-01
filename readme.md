@@ -20,6 +20,7 @@
     - [Amazon ECS Service Connect intro](./AWS_SAA_C03/Readme/ServiceConnectDemo/ServiceConnectIntro.md)
     - [ServiceConnectDemo Phase 1 ECS Fargate lab](./AWS_SAA_C03/Readme/ServiceConnectDemo/Readme.md)
     - [ECS Fargate Service Connect HTTPS lab](./AWS_SAA_C03/Readme/ServiceConnectDemo/ServiceConnectHttpsIndependentLab.md)
+    - [Service connect end to end TLS Phase 2](./AWS_SAA_C03/Readme/ServiceConnectDemo/ServiceConnectPhase2.md)
   
 
 
