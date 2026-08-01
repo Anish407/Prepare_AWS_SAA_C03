@@ -2,7 +2,7 @@
 
 ## Goal
 
-Build a complete ECS Fargate lab from the beginning with three ASP.NET Core APIs, CloudFront, an HTTPS Application Load Balancer, and ECS Service Connect TLS for the internal service path.
+Build a complete ECS Fargate lab from the beginning with three ASP.NET Core APIs, CloudFront, an HTTPS Application Load Balancer, and ECS Service Connect TLS. The public request remains encrypted from CloudFront to the Api1 task by sending the ALB's HTTPS target-group traffic through the Api1 Service Connect proxy.
 
 Final architecture:
 
@@ -12,12 +12,10 @@ Client
 CloudFront
   -> HTTPS
 Application Load Balancer
-  -> HTTPS target group on port 8080
-ServiceConnectDemo.Api1 ECS service
-  -> ECS Service Connect TLS
-ServiceConnectDemo.Api2 ECS service
-  -> ECS Service Connect TLS
-ServiceConnectDemo.Api3 ECS service
+  -> HTTPS/TLS 1.3 target group on port 8080
+Api1 Service Connect proxy -> loopback HTTP -> Api1 app
+Api1 app -> local proxy -> Service Connect TLS 1.3 -> Api2 proxy -> Api2 app
+Api2 app -> local proxy -> Service Connect TLS 1.3 -> Api3 proxy -> Api3 app
 ```
 
 The three APIs are:
@@ -48,6 +46,7 @@ Reference documentation:
 - Service Connect concepts: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-concepts-deploy.html
 - Service Connect TLS: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-tls.html
 - Enable Service Connect TLS: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/enable-service-connect-tls.html
+- ECS infrastructure IAM role: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html
 
 ---
 
@@ -78,7 +77,17 @@ Application setting uses: http://api2:8080
 Service Connect encrypts: Api1 proxy -> Api2 proxy
 ```
 
-For the ALB to Api1 hop, the ALB uses an HTTPS target group. With Service Connect TLS enabled on Api1, ALB traffic routes through the Service Connect agent by default in `awsvpc` mode.
+For the ALB-to-Api1 hop, the ALB uses an HTTPS target group on port `8080`. With Service Connect TLS enabled on Api1, `awsvpc` networking, and `ingressPortOverride` omitted, inbound ALB traffic to the named container port is accepted by the Api1 Service Connect proxy. The proxy terminates TLS and forwards plaintext over task-local loopback to the Api1 container. Api1 itself continues to listen for HTTP on `8080`; do not add an application certificate merely to make this design work.
+
+This lab provides TLS on every network hop, not one continuous TLS session. TLS terminates and is re-originated at the managed boundaries:
+
+```text
+Viewer ==TLS==> CloudFront ==TLS==> ALB ==TLS 1.3==> Api1 Service Connect proxy
+Api1 app ==local HTTP==> Api1 proxy ==TLS 1.3==> Api2 proxy ==local HTTP==> Api2 app
+Api2 app ==local HTTP==> Api2 proxy ==TLS 1.3==> Api3 proxy ==local HTTP==> Api3 app
+```
+
+All plaintext segments are loopback traffic inside their respective tasks. If "end-to-end TLS" means one TLS session terminating in the application container, this Service Connect termination design does not provide that; the application would instead need to serve HTTPS and manage its own certificate. This lab's goal is encryption for every connection that crosses a task or service boundary.
 
 ---
 
@@ -280,8 +289,9 @@ com.amazonaws.<region>.ecr.dkr
 com.amazonaws.<region>.logs
 com.amazonaws.<region>.secretsmanager
 com.amazonaws.<region>.kms
-com.amazonaws.<region>.acm-pca
 ```
+
+The KMS endpoint is required when you select a customer managed KMS key. Keeping it in this lab also makes that choice work without a NAT gateway. Do not add an ACM Private CA interface endpoint: certificate issuance is performed by the ECS control plane through the infrastructure role, not by the application task.
 
 Create this gateway endpoint:
 
@@ -313,15 +323,14 @@ ECR image pulls need the S3 gateway endpoint because ECR image layers are stored
 Go to:
 
 ```text
-ECS -> Clusters -> Namespaces
+ECS -> Namespaces
 ```
 
 Create:
 
 ```text
 Namespace: serviceconnectdemo.local
-Type: Private DNS namespace
-VPC: serviceconnectdemo-vpc
+Type: Service Connect namespace (AWS Cloud Map HTTP namespace)
 ```
 
 Do not manually create these Cloud Map services:
@@ -332,6 +341,8 @@ api3.serviceconnectdemo.local
 ```
 
 ECS Service Connect creates the required Cloud Map service entries from the ECS service configuration.
+
+Alternatively, set `serviceconnectdemo.local` as the cluster's default Service Connect namespace while creating the cluster and let ECS create it. Service Connect resolves client aliases through the proxy; the `.local` suffix here is a namespace label, not an instruction for the apps to use private-DNS FQDNs.
 
 ---
 
@@ -362,6 +373,7 @@ Create an ECS infrastructure role for Service Connect TLS:
 Role name: ecsInfrastructureRoleForServiceConnectDemo
 Trusted service: ecs.amazonaws.com
 Purpose: ECS infrastructure role
+Managed policy: AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity
 ```
 
 This infrastructure role lets ECS manage Service Connect TLS resources such as:
@@ -378,6 +390,8 @@ Keep this role separate from:
 ECS task execution role
 ECS task role
 ```
+
+The IAM principal that creates or updates the ECS services must also be allowed to pass this role to ECS with `iam:PassRole` and the `iam:PassedToService=ecs.amazonaws.com` condition.
 
 ---
 
@@ -557,11 +571,13 @@ Certificate: ACM certificate for the ALB hostname
 Default action: forward to serviceconnectdemo-api1-https-tg
 ```
 
-Recommended listener security policy:
+Required for this Service Connect TLS path: choose a listener security policy that enables TLS 1.3, for example:
 
 ```text
-ELBSecurityPolicy-TLS13-1-2-2021-06, or another current TLS 1.2/TLS 1.3 policy
+ELBSecurityPolicy-TLS13-1-2-2021-06
 ```
+
+Service Connect automatic TLS supports TLS 1.3 for this backend path. A listener policy that only enables TLS 1.2 is not sufficient for the ALB-to-Service-Connect-proxy connection.
 
 If using Route 53, create an alias record for the ALB:
 
@@ -950,7 +966,7 @@ Api1 SG allows inbound 8080 from ALB SG
 Api1 service is attached to the target group
 No ingressPortOverride is configured
 Api1 uses awsvpc network mode
-ALB listener uses a TLS 1.2/TLS 1.3 policy
+ALB listener uses a TLS 1.3-capable policy
 ```
 
 ### CloudFront returns 502
@@ -1003,6 +1019,8 @@ Service Connect TLS is proxy-to-proxy encryption. The application code should no
 - ECS cluster created
 - ECS task execution role created
 - ECS infrastructure role created
+- ECS infrastructure role has AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity
+- Deploying principal can pass the infrastructure role to ecs.amazonaws.com
 - AWS Private CA created and tagged AmazonECSManaged=true
 - Public ACM certificate created for ALB
 - Optional CloudFront custom domain certificate created in us-east-1
@@ -1010,6 +1028,8 @@ Service Connect TLS is proxy-to-proxy encryption. The application code should no
 - Api1 uses Downstream__Api2BaseUrl=http://api2:8080
 - Api2 uses Downstream__Api3BaseUrl=http://api3:8080
 - HTTPS target group for Api1 created
+- Api1 ingressPortOverride is unset so ALB traffic on 8080 enters the proxy
+- ALB listener uses a TLS 1.3-capable security policy
 - ALB HTTPS listener created
 - Api3 ECS service created with Service Connect TLS
 - Api2 ECS service created with Service Connect TLS
