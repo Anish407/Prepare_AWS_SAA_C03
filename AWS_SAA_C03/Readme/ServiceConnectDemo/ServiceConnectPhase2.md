@@ -365,6 +365,11 @@ Policy: AmazonECSTaskExecutionRolePolicy
 
 <img width="1566" height="648" alt="image" src="https://github.com/user-attachments/assets/082c0657-dadb-4d10-8963-6293870c41d6" />
 
+Add this permission, since the ECS service will try to create cloudwatch streams and might fail
+
+<img width="854" height="308" alt="image" src="https://github.com/user-attachments/assets/b97e7edc-ef70-4736-b813-ea399866cd4e" />
+
+
 > ecs-tasks.amazonaws.com is used by task execution roles and task roles.
 
 
@@ -442,12 +447,15 @@ Key algorithm: RSA 2048 or ECDSA 256
 <img width="603" height="250" alt="image" src="https://github.com/user-attachments/assets/86a3a53e-8601-4c75-9623-fded43b368f0" />
 
 
-Add the required tag:
+Add the required tag: If the tag is missing or incorrectly capitalized, IAM treats the permission as unavailable and returns the error.
 
 ```text
 Key: AmazonECSManaged
 Value: true
 ```
+
+<img width="464" height="109" alt="image" src="https://github.com/user-attachments/assets/045948d9-7bc7-494c-8965-1e1c73143be4" />
+
 
 Create and activate the CA.
 
@@ -677,6 +685,15 @@ Public IP: Disabled
 Load balancer: None
 ```
 
+<img width="710" height="281" alt="image" src="https://github.com/user-attachments/assets/a76e9663-c1eb-4696-add9-1d74b5c61cec" />
+
+
+<img width="740" height="284" alt="image" src="https://github.com/user-attachments/assets/2a287926-7d0e-4025-8ed4-fd70a27f68dd" />
+
+
+<img width="635" height="350" alt="image" src="https://github.com/user-attachments/assets/ee3e74a2-155d-420f-8f26-a75cb465eded" />
+
+
 Service Connect:
 
 ```text
@@ -693,6 +710,17 @@ IAM role: ecsInfrastructureRoleForServiceConnectDemo
 KMS key: AWS owned key, or customer managed symmetric key
 ```
 
+<img width="791" height="365" alt="image" src="https://github.com/user-attachments/assets/49dcda24-3cbc-4ef6-a62a-82a4ad1f6d81" />
+
+
+
+| Field | Value | Purpose |
+|---|---|---|
+| Port alias | `api3-http` | Selects the named port mapping from Api3’s task definition |
+| Discovery | `api3-http` | Name of the Cloud Map service ECS creates |
+| DNS | `api3` | Client alias that applications use |
+| Port | `8080` | Client-facing Service Connect port |
+
 Create the service and wait for steady state.
 
 Verify the running task has:
@@ -701,6 +729,8 @@ Verify the running task has:
 ServiceConnectDemo.Api3 container
 Service Connect proxy container
 ```
+
+<img width="662" height="117" alt="image" src="https://github.com/user-attachments/assets/883728ff-7f6e-43a9-ae4f-fbdba92d7207" />
 
 ---
 
@@ -737,6 +767,9 @@ AWS Private CA: <private-ca-arn>
 IAM role: ecsInfrastructureRoleForServiceConnectDemo
 KMS key: AWS owned key, or customer managed symmetric key
 ```
+
+<img width="780" height="344" alt="image" src="https://github.com/user-attachments/assets/e4c2dda5-833a-40a3-9fa9-ec291cfda5ad" />
+
 
 Create the service and wait for steady state.
 
