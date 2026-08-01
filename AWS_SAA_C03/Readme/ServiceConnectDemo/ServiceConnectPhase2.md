@@ -457,6 +457,11 @@ Important:
 AWS Private CA can create ongoing cost.
 Delete or disable it after the lab if you do not need it.
 ```
+<img width="538" height="156" alt="image" src="https://github.com/user-attachments/assets/40a774ad-bc65-4f3c-9762-bcf0724a0c9a" />
+
+To activate the CA certificate click on the below button
+<img width="728" height="248" alt="image" src="https://github.com/user-attachments/assets/94f63dea-fa78-4c22-b3fd-e218e04091d5" />
+
 
 ---
 
@@ -469,10 +474,13 @@ Example ALB origin domain:
 ```text
 api-origin.example.com
 ```
+<img width="734" height="393" alt="image" src="https://github.com/user-attachments/assets/56a88a51-fe7b-492a-9f6e-a6fdd3c25baa" />
 
-Validate the certificate using DNS validation in Route 53.
+Validate the certificate using DNS validation in Route 53, we get the CNAME and CVALUE, add it to the hosted zone for that domain
 
-For a CloudFront custom domain, request a separate public ACM certificate in:
+<img width="623" height="321" alt="image" src="https://github.com/user-attachments/assets/e0e99ae4-cb78-4079-8780-f829da40a2ba" />
+
+### OPTIONAL: For a CloudFront custom domain, request a separate public ACM certificate in:
 
 ```text
 us-east-1
