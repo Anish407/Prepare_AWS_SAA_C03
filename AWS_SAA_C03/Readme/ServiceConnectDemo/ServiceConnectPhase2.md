@@ -289,9 +289,9 @@ Api2 and Api3 should not allow public inbound traffic.
 Create these interface endpoints in the private subnets:
 
 ```text
-com.amazonaws.<region>.ecr.api
-com.amazonaws.<region>.ecr.dkr
-com.amazonaws.<region>.logs
+com.amazonaws.<region>.ecr.api // to pull images from ECR
+com.amazonaws.<region>.ecr.dkr // to pull images from ECR
+com.amazonaws.<region>.logs // to connect to cloudwatch
 com.amazonaws.<region>.secretsmanager
 com.amazonaws.<region>.kms
 ```
@@ -313,15 +313,17 @@ Private DNS: Enabled
 Security group: serviceconnectdemo-endpoints-sg
 ```
 
-Associate the S3 gateway endpoint with the private route table.
+<img width="815" height="401" alt="image" src="https://github.com/user-attachments/assets/2331651c-bea1-42a7-9381-8f4f73414fd3" />
 
-Important:
+<img width="862" height="272" alt="image" src="https://github.com/user-attachments/assets/c01ae454-ebaf-4d65-a5f8-cb70b1b36c80" />
 
-```text
-ECR image pulls need the S3 gateway endpoint because ECR image layers are stored in S3.
-```
+Choose the private subnets 
+<img width="767" height="240" alt="image" src="https://github.com/user-attachments/assets/4828a2a7-15c0-4a9a-a2f9-287556a88ace" />
 
----
+and select the endpoint security group, because the ecs resources will be in the private subnet and they will connect to ECR using the endpoint security group
+<img width="481" height="275" alt="image" src="https://github.com/user-attachments/assets/4c24fc7f-b58c-4926-89f4-85731e1c269f" />
+
+Repeat the steps to create all the endpoints mentioned in the list.
 
 ## Step 7: Create The Service Connect Namespace
 
