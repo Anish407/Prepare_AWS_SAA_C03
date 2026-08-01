@@ -898,6 +898,10 @@ Port: 8080
 Health: Healthy
 ```
 
+<img width="782" height="245" alt="image" src="https://github.com/user-attachments/assets/829c7dd1-1ea3-42f1-9509-7d8ed598f3d1" />
+
+
+
 If unhealthy, check:
 
 ```text
