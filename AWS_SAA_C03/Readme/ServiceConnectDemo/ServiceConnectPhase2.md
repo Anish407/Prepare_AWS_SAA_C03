@@ -99,6 +99,12 @@ All plaintext segments are loopback traffic inside their respective tasks. If "e
 
 ## Step 1: Choose Lab Values
 
+Before we begin, navigate to IAM -> users and generate security credentials which will be used to configure the aws profile that will be used in this lab.
+
+<img width="662" height="108" alt="image" src="https://github.com/user-attachments/assets/a278f81d-2534-4bb6-ab51-f9cbf40ec194" />
+
+
+
 Use these names throughout the lab.
 
 | Resource | Name |
