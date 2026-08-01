@@ -330,7 +330,7 @@ Repeat the steps to create all the endpoints mentioned in the list.
 
 ---
 
-## Step 8: Create ECS Cluster
+## Step 7: Create ECS Cluster
 
 Create an ECS cluster:
 
@@ -352,7 +352,7 @@ Namespace: serviceconnectdemo.local
 
 ---
 
-## Step 9: Create IAM Roles
+## Step 8: Create IAM Roles
 
 Create or use an ECS task execution role:
 
@@ -365,6 +365,7 @@ Policy: AmazonECSTaskExecutionRolePolicy
 
 <img width="1566" height="648" alt="image" src="https://github.com/user-attachments/assets/082c0657-dadb-4d10-8963-6293870c41d6" />
 
+> ecs-tasks.amazonaws.com is used by task execution roles and task roles.
 
 Create an ECS infrastructure role for Service Connect TLS:
 
@@ -374,6 +375,21 @@ Trusted service: ecs.amazonaws.com
 Purpose: ECS infrastructure role
 Managed policy: AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity
 ```
+
+## Step 9: Create roles needed for Service connect
+
+The ECS infrastructure role allows the Amazon ECS control plane to create and manage the certificates, secrets, and encryption resources required by Service Connect TLS.
+It is not assumed by your application containers or by the Fargate task.
+
+### Why Service Connect TLS needs it
+When TLS is enabled for an ECS Service Connect service, ECS automatically:
+- Requests a private certificate from AWS Private CA.
+- Stores Service Connect TLS material in AWS Secrets Manager.
+- Uses AWS KMS to protect the secret.
+- Distributes the certificate material to Service Connect proxies.
+- Rotates certificates before they expire.
+- Cleans up ECS-managed TLS resources when they are no longer required.
+- ECS needs permission to perform those operations in your account. The infrastructure role provides that permission.
 
 This infrastructure role lets ECS manage Service Connect TLS resources such as:
 
