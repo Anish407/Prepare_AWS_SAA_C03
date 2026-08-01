@@ -597,6 +597,13 @@ Health check port: Traffic port
 Success codes: 200
 ```
 
+
+<img width="774" height="394" alt="image" src="https://github.com/user-attachments/assets/534c5f67-6f73-4026-8fd3-af4d4cf8b2d3" />
+
+
+<img width="731" height="352" alt="image" src="https://github.com/user-attachments/assets/6721447e-5298-4964-b6ea-a0a9063d9d31" />
+
+
 Do not manually register targets. ECS will register the Api1 task IPs when the Api1 service is created.
 
 ---
@@ -615,6 +622,20 @@ Listener: HTTPS 443
 Certificate: ACM certificate for the ALB hostname
 Default action: forward to serviceconnectdemo-api1-https-tg
 ```
+
+<img width="731" height="333" alt="image" src="https://github.com/user-attachments/assets/61893331-ffa9-4a07-93ba-ce279830bb15" />
+
+
+<img width="947" height="164" alt="image" src="https://github.com/user-attachments/assets/8637ef95-f01e-4377-aed7-5f23832e38a5" />
+
+
+<img width="851" height="397" alt="image" src="https://github.com/user-attachments/assets/80bd98ce-3944-4f87-97f3-4208620afe99" />
+
+
+<img width="887" height="310" alt="image" src="https://github.com/user-attachments/assets/28d9c21c-ee05-4530-b12a-6a0d35daa087" />
+
+
+
 
 Required for this Service Connect TLS path: choose a listener security policy that enables TLS 1.3, for example:
 
