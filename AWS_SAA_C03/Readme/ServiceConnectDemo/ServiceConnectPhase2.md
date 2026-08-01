@@ -361,6 +361,10 @@ Role name: ecsTaskExecutionRole
 Trusted service: ecs-tasks.amazonaws.com
 Policy: AmazonECSTaskExecutionRolePolicy
 ```
+<img width="1384" height="808" alt="image" src="https://github.com/user-attachments/assets/a6f0bf41-60fd-4cb9-9aef-0e6db15b4383" />
+
+<img width="1566" height="648" alt="image" src="https://github.com/user-attachments/assets/082c0657-dadb-4d10-8963-6293870c41d6" />
+
 
 Create an ECS infrastructure role for Service Connect TLS:
 
