@@ -394,8 +394,9 @@ Managed policy: AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayer
 ```
 <img width="709" height="401" alt="image" src="https://github.com/user-attachments/assets/6696bbba-dfea-48ad-abdd-2feffe91c52e" />
 
-> The trust policy uses ```ecs.amazonaws.com```, unlike an ECS task role or task execution role, which uses ```ecs-tasks.amazonaws.com```. This is because the
-> infrastructure role is assumed by the Amazon ECS service control plane to manage Service Connect TLS resources; it is not assumed by the running ECS tasks
+```text
+The trust policy uses ```ecs.amazonaws.com```, unlike an ECS task role or task execution role, which uses ```ecs-tasks.amazonaws.com```. This is because the infrastructure role is assumed by the Amazon ECS service control plane to manage Service Connect TLS resources; it is not assumed by the running ECS tasks
+```
 
 <img width="845" height="383" alt="image" src="https://github.com/user-attachments/assets/484947a6-5254-46b0-947c-28547addb0d5" />
 
