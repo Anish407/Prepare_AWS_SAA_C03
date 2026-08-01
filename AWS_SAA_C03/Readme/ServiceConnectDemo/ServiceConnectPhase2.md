@@ -511,6 +511,8 @@ Task execution role: ecsTaskExecutionRole
 Log driver: awslogs
 ```
 
+<img width="578" height="395" alt="image" src="https://github.com/user-attachments/assets/af62f4a2-bc8d-4caf-b35d-65e049b1b009" />
+
 Service Connect adds a proxy sidecar, so do not size the task as if only the app container exists.
 
 ### Api1 Task Definition
@@ -526,12 +528,16 @@ Port name: api1-http
 App protocol: HTTP
 ```
 
+<img width="740" height="373" alt="image" src="https://github.com/user-attachments/assets/05090920-4b86-4c6b-99a4-32802dd76787" />
+
 Environment variables:
 
 ```text
 ASPNETCORE_HTTP_PORTS=8080
 Downstream__Api2BaseUrl=http://api2:8080
 ```
+
+<img width="537" height="230" alt="image" src="https://github.com/user-attachments/assets/8959affb-65b4-4311-8554-83eb234121fc" />
 
 ### Api2 Task Definition
 
