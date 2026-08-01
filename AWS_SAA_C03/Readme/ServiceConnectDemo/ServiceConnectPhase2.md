@@ -367,14 +367,7 @@ Policy: AmazonECSTaskExecutionRolePolicy
 
 > ecs-tasks.amazonaws.com is used by task execution roles and task roles.
 
-Create an ECS infrastructure role for Service Connect TLS:
 
-```text
-Role name: ecsInfrastructureRoleForServiceConnectDemo
-Trusted service: ecs.amazonaws.com
-Purpose: ECS infrastructure role
-Managed policy: AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity
-```
 
 ## Step 9: Create roles needed for Service connect
 
@@ -391,11 +384,27 @@ When TLS is enabled for an ECS Service Connect service, ECS automatically:
 - Cleans up ECS-managed TLS resources when they are no longer required.
 - ECS needs permission to perform those operations in your account. The infrastructure role provides that permission.
 
-This infrastructure role lets ECS manage Service Connect TLS resources such as:
+Create an ECS infrastructure role for Service Connect TLS:
+
+```text
+Role name: ecsInfrastructureRoleForServiceConnectDemo
+Trusted service: ecs.amazonaws.com
+Purpose: ECS infrastructure role
+Managed policy: AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity
+```
+<img width="709" height="401" alt="image" src="https://github.com/user-attachments/assets/6696bbba-dfea-48ad-abdd-2feffe91c52e" />
+
+> The trust policy uses ```ecs.amazonaws.com```, unlike an ECS task role or task execution role, which uses ```ecs-tasks.amazonaws.com```. This is because the
+> infrastructure role is assumed by the Amazon ECS service control plane to manage Service Connect TLS resources; it is not assumed by the running ECS tasks
+
+<img width="845" height="383" alt="image" src="https://github.com/user-attachments/assets/484947a6-5254-46b0-947c-28547addb0d5" />
+
+
+If we expand the permissions we can see that the policy permits actions for managing:
 
 ```text
 AWS Private CA
-Secrets Manager secrets
+Secrets Manager secrets, rotating certificate
 KMS keys, if using a customer managed KMS key
 ```
 
