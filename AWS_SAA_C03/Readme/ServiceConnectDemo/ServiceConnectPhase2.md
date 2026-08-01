@@ -325,31 +325,8 @@ and select the endpoint security group, because the ecs resources will be in the
 
 Repeat the steps to create all the endpoints mentioned in the list.
 
-## Step 7: Create The Service Connect Namespace
+<img width="764" height="194" alt="image" src="https://github.com/user-attachments/assets/cbb42176-4ea6-4118-92c2-97bcf5c941ba" />
 
-Go to:
-
-```text
-ECS -> Namespaces
-```
-
-Create:
-
-```text
-Namespace: serviceconnectdemo.local
-Type: Service Connect namespace (AWS Cloud Map HTTP namespace)
-```
-
-Do not manually create these Cloud Map services:
-
-```text
-api2.serviceconnectdemo.local
-api3.serviceconnectdemo.local
-```
-
-ECS Service Connect creates the required Cloud Map service entries from the ECS service configuration.
-
-Alternatively, set `serviceconnectdemo.local` as the cluster's default Service Connect namespace while creating the cluster and let ECS create it. Service Connect resolves client aliases through the proxy; the `.local` suffix here is a namespace label, not an instruction for the apps to use private-DNS FQDNs.
 
 ---
 
@@ -361,6 +338,17 @@ Create an ECS cluster:
 Name: serviceconnectdemo-cluster
 Infrastructure: AWS Fargate
 ```
+<img width="779" height="279" alt="image" src="https://github.com/user-attachments/assets/bf019565-4d1f-4727-9d8e-0bf71c056b73" />
+
+Create:
+Alternatively, set `serviceconnectdemo.local` as the cluster's default Service Connect namespace while creating the cluster and let ECS create it. Service Connect resolves client aliases through the proxy; the `.local` suffix here is a namespace label, not an instruction for the apps to use private-DNS FQDNs.
+
+ECS Service Connect creates the required Cloud Map service entries from the ECS service configuration.
+
+```text
+Namespace: serviceconnectdemo.local
+```
+<img width="629" height="404" alt="image" src="https://github.com/user-attachments/assets/6dc59321-531b-4efc-8e19-142f9bc30eb7" />
 
 ---
 
