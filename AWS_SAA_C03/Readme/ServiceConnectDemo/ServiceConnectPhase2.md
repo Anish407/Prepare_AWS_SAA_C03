@@ -923,9 +923,11 @@ No ingressPortOverride is configured
 Call the ALB custom domain:
 
 ```text
-https://<alb-custom-domain>/health
+https://<alb-custom-domain>/healthz
 https://<alb-custom-domain>/chain
 ```
+<img width="599" height="143" alt="image" src="https://github.com/user-attachments/assets/2acb683d-f099-48d4-89d4-d8d1edb20766" />
+
 
 Expected `/chain` response includes:
 
@@ -934,6 +936,8 @@ ServiceConnectDemo.Api1
 ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
+<img width="608" height="355" alt="image" src="https://github.com/user-attachments/assets/1d3cf29c-3db2-4cd0-b8ce-425a738eb911" />
+
 
 If the ALB certificate is for a custom domain, test using the custom domain so the TLS hostname matches the certificate.
 
