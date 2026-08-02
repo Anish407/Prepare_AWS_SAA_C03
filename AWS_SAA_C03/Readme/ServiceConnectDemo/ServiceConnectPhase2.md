@@ -955,8 +955,9 @@ Allowed methods: GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE
 Cache policy: CachingDisabled
 Origin request policy: forward headers/query strings needed for API testing
 ```
+<img width="827" height="420" alt="image" src="https://github.com/user-attachments/assets/93310b47-d432-415e-8247-c2ac32466fa4" />
 
-If using a custom CloudFront domain:
+Optional: If using a custom CloudFront domain:
 
 ```text
 Alternate domain name: api.example.com
@@ -982,6 +983,8 @@ https://<cloudfront-domain>/health
 https://<cloudfront-domain>/chain
 ```
 
+<img width="478" height="101" alt="image" src="https://github.com/user-attachments/assets/0adc42f8-80a9-4d55-b945-6b8f5db989a3" />
+
 Expected `/chain` response includes:
 
 ```text
@@ -989,6 +992,7 @@ ServiceConnectDemo.Api1
 ServiceConnectDemo.Api2
 ServiceConnectDemo.Api3
 ```
+<img width="530" height="315" alt="image" src="https://github.com/user-attachments/assets/f00e0835-dce9-46c6-9c45-bfb3fe222417" />
 
 Final path:
 
