@@ -21,7 +21,7 @@ builder.Services.AddHttpClient("api2", client =>
 
 var app = builder.Build();
 app.UseForwardedHeaders();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/healthz");
 
 app.MapGet("/", () => Results.Redirect("/chain"));
 
