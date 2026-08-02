@@ -1027,6 +1027,7 @@ The apps should not call:
 api2.serviceconnectdemo.local
 api3.serviceconnectdemo.local
 ```
+<img width="372" height="53" alt="image" src="https://github.com/user-attachments/assets/c08c0e21-332e-4c14-887b-09cbd15be586" />
 
 To verify TLS, use the ECS Service Connect TLS verification method from the AWS documentation. The key idea is:
 
